@@ -104,27 +104,25 @@
             <p id="orderCount" class="text-xs text-slate-500">0 orders loaded</p>
           </div>
           <div class="flex items-center gap-3">
-            <button id="orderFilter" onclick="toggleOrderFilter()" class="text-xs font-semibold text-slate-500 hover:text-slate-900 transition">All orders</button>
             <button onclick="insertTestOrder()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition">+ Demo order</button>
           </div>
         </div>
 
-        <!-- Orders Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead>
-              <tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
-                <th class="pb-3">Customer</th>
-                <th class="pb-3">Items</th>
-                <th class="pb-3">Total</th>
-                <th class="pb-3 text-right">Status</th>
-                <th class="pb-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="ordersTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
-              <!-- Dynamically populated from Supabase -->
-            </tbody>
-          </table>
+        <div class="grid gap-4 lg:grid-cols-2">
+          <div class="rounded-xl border border-amber-100 bg-amber-50/40 p-3">
+            <div class="mb-2 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-amber-800">Pending orders</h3><span id="pendingOrderBadge" class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">0</span></div>
+            <div class="overflow-x-auto"><table class="w-full text-left text-xs">
+              <thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-amber-100"><th class="pb-2">Customer</th><th class="pb-2">Items</th><th class="pb-2">Total</th><th class="pb-2 text-right">Action</th></tr></thead>
+              <tbody id="pendingOrdersBody" class="divide-y divide-amber-100 font-medium text-slate-700"></tbody>
+            </table></div>
+          </div>
+          <div class="rounded-xl border border-rose-100 bg-rose-50/40 p-3">
+            <div class="mb-2 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-rose-800">Refunded</h3><span id="refundedOrderBadge" class="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">0</span></div>
+            <div class="overflow-x-auto"><table class="w-full text-left text-xs">
+              <thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-rose-100"><th class="pb-2">Customer</th><th class="pb-2">Items</th><th class="pb-2">Total</th><th class="pb-2 text-right">Status</th></tr></thead>
+              <tbody id="refundedOrdersBody" class="divide-y divide-rose-100 font-medium text-slate-700"></tbody>
+            </table></div>
+          </div>
         </div>
       </section>
 
@@ -136,25 +134,14 @@
         </div>
         <p class="text-xs text-slate-500 mb-4">Projected against today's demand.</p>
 
-        <div class="space-y-4">
-          <div>
-            <div class="flex justify-between text-xs font-semibold mb-1">
-              <span>Chicken wraps</span>
-              <span id="wrapStockLabel" class="text-slate-900">76 pcs</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2">
-              <div id="wrapStockBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 65%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-xs font-semibold mb-1">
-              <span>Cheese portions</span>
-              <span id="cheeseStockLabel" class="text-amber-600">19 pcs</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2">
-              <div id="cheeseStockBar" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 25%"></div>
-            </div>
-          </div>
+        <div class="grid grid-cols-[1fr_auto] items-end gap-3">
+          <svg viewBox="0 0 240 120" class="h-32 w-full" role="img" aria-label="Remaining inventory bar chart">
+            <line x1="32" y1="100" x2="232" y2="100" stroke="#e2e8f0" stroke-width="2"/>
+            <text x="0" y="34" fill="#64748b" font-size="11">Wraps</text><rect x="50" y="18" width="150" height="22" rx="6" fill="#ecfdf5"/><rect id="wrapStockBar" x="50" y="18" width="150" height="22" rx="6" fill="#10b981"/>
+            <text x="0" y="76" fill="#64748b" font-size="11">Cheese</text><rect x="50" y="60" width="150" height="22" rx="6" fill="#fff7ed"/><rect id="cheeseStockBar" x="50" y="60" width="150" height="22" rx="6" fill="#f59e0b"/>
+            <text x="50" y="116" fill="#94a3b8" font-size="10">0</text><text x="185" y="116" fill="#94a3b8" font-size="10">full stock</text>
+          </svg>
+          <div class="space-y-3 text-right text-xs font-bold"><div><span id="wrapStockLabel" class="block text-emerald-600">76 pcs</span><span class="text-slate-400">Wraps left</span></div><div><span id="cheeseStockLabel" class="block text-amber-600">19 pcs</span><span class="text-slate-400">Cheese left</span></div></div>
         </div>
       </section>
     </div>
@@ -185,18 +172,31 @@
             <div class="text-xl font-bold text-indigo-600 mt-1">68.7%</div>
           </div>
         </div>
+        <div class="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-3">
+          <div class="mb-2 flex items-center justify-between"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Cash-flow chart</span><span class="text-[10px] text-slate-400">Orders vs refunds</span></div>
+          <svg id="cashFlowChart" viewBox="0 0 320 110" class="h-28 w-full" role="img" aria-label="Cash flow chart"></svg>
+        </div>
       </section>
 
       <section class="p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
         <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">AI analysis trend</span>
         <h3 id="trendTitle" class="text-base font-bold text-slate-900 mt-1">Waiting for transaction activity</h3>
-        <div id="trendBars" class="mt-4 flex h-16 items-end gap-1.5"></div>
+        <svg id="trendChart" viewBox="0 0 320 116" class="mt-3 h-28 w-full" role="img" aria-label="Demand trend chart"></svg>
         <p id="trendInsight" class="text-xs text-slate-600 mt-3 leading-relaxed">Upload receipts or add orders to reveal demand, spending, and cash-flow patterns.</p>
       </section>
       <section class="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-100">
         <span class="text-[10px] font-bold tracking-widest text-emerald-700 uppercase">Personalized cash-flow actions</span>
         <h3 id="cashflowTitle" class="text-base font-bold text-slate-900 mt-1">No recommendations yet</h3>
         <div id="cashflowSuggestions" class="mt-3 space-y-2 text-xs text-slate-700"></div>
+      </section>
+      <section class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+        <span class="text-[10px] font-bold tracking-widest text-sky-700 uppercase">MSME resource desk</span>
+        <h3 class="text-base font-bold text-slate-900 mt-1">Support matched to your next step</h3>
+        <div class="mt-3 grid gap-2 text-xs">
+          <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://smecorp.gov.my/index.php/en/about-sme-corp-malaysia"><strong>Business advisory</strong><span class="block mt-1 text-slate-500">SME Corp. Malaysia programmes and guidance</span></a>
+          <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://www.tekun.gov.my/en/laman-utama-english/"><strong>Working-capital options</strong><span class="block mt-1 text-slate-500">TEKUN Nasional financing information</span></a>
+          <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://www.mdec.my/programmes/business-digitalisation-initiative"><strong>Digital growth</strong><span class="block mt-1 text-slate-500">MDEC Business Digitalisation Initiative</span></a>
+        </div>
       </section>
     </div>
 
@@ -234,48 +234,25 @@
       return `RM ${parseFloat(num || 0).toFixed(2)}`;
     }
 
-    // Render a single order row inside the table
-    function prependOrderRow(order) {
-      const tbody = document.getElementById("ordersTableBody");
-
-      // Check if already in DOM to prevent duplicates
-      if (document.getElementById(`order-${order.id}`)) return;
-
-      const tr = document.createElement("tr");
-      tr.id = `order-${order.id}`;
-      tr.className = "order-row hover:bg-slate-50/80 transition-colors";
-
+    function orderRow(order, refunded) {
       const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
-      const statusClass = order.status_tag === 'Refunded'
-        ? 'bg-rose-50 text-rose-700 border-rose-200'
-        : order.status_tag === 'Confirmed'
-        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-        : 'bg-amber-50 text-amber-700 border-amber-200';
-
-      tr.innerHTML = `
-        <td class="py-3 font-semibold text-slate-900">${order.customer || 'Guest Customer'}</td>
-        <td class="py-3 text-slate-600">${itemsDesc}</td>
-        <td class="py-3 font-bold text-slate-800">${formatCurrency(order.total)}</td>
-        <td class="py-3 text-right">
-          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${statusClass}">
-            ${order.status_tag || 'Pending'}
-          </span>
-        </td>
-        <td class="py-3 text-right">
-          ${order.status_tag === 'Refunded' ? '<span class="text-[10px] text-rose-600">Refunded</span>' : `<button onclick="refundOrder('${order.id}')" class="text-[10px] font-bold text-rose-600 hover:text-rose-800">Refund</button>`}
-        </td>
-      `;
-
-      tbody.insertBefore(tr, tbody.firstChild);
+      const action = refunded
+        ? '<span class="rounded-full bg-rose-100 px-2 py-1 text-[10px] font-bold text-rose-700">Refunded</span>'
+        : `<button onclick="refundOrder('${order.id}')" class="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-rose-50">Refund</button>`;
+      return `<tr class="hover:bg-white/70 transition-colors"><td class="py-2.5 font-semibold text-slate-900">${order.customer || 'Guest Customer'}</td><td class="py-2.5 text-slate-600">${itemsDesc}</td><td class="py-2.5 font-bold text-slate-800">${formatCurrency(order.total)}</td><td class="py-2.5 text-right">${action}</td></tr>`;
     }
 
     function renderOrders() {
-      const tbody = document.getElementById("ordersTableBody");
-      tbody.innerHTML = "";
-      const visibleOrders = pendingOnly
-        ? allOrders.filter(order => !["Confirmed", "Fulfilled"].includes(order.status_tag))
-        : allOrders;
-      visibleOrders.forEach(prependOrderRow);
+      const pending = allOrders.filter(order => order.status_tag !== 'Refunded');
+      const refunded = allOrders.filter(order => order.status_tag === 'Refunded');
+      document.getElementById("pendingOrdersBody").innerHTML = pending.length
+        ? pending.map(order => orderRow(order, false)).join("")
+        : '<tr><td colspan="4" class="py-4 text-center text-slate-400">No pending orders</td></tr>';
+      document.getElementById("refundedOrdersBody").innerHTML = refunded.length
+        ? refunded.map(order => orderRow(order, true)).join("")
+        : '<tr><td colspan="4" class="py-4 text-center text-slate-400">No refunds recorded</td></tr>';
+      document.getElementById("pendingOrderBadge").innerText = pending.length;
+      document.getElementById("refundedOrderBadge").innerText = refunded.length;
     }
 
     // Recalculate totals
@@ -302,6 +279,7 @@
       document.getElementById("pendingTotal").innerText = formatCurrency(totalPending);
       document.getElementById("outflowTotal").innerText = formatCurrency(83 + refunds);
       updateStockProjection();
+      updateCashFlowChart(totalInflow, totalPending, refunds);
       updateAnalysisTrend(refunds, totalPending);
     }
 
@@ -482,12 +460,6 @@
       extractedOrder = null;
     }
 
-    function toggleOrderFilter() {
-      pendingOnly = !pendingOnly;
-      document.getElementById("orderFilter").innerText = pendingOnly ? "Pending only" : "All orders";
-      renderOrders();
-    }
-
     function updateStockProjection() {
       const wrapDemand = allOrders.filter(order => /wrap/i.test(order.product || "")).reduce((sum, order) => sum + Number(order.quantity || 0), 0);
       const cheeseDemand = allOrders.filter(order => /cheese/i.test(order.addon || "")).reduce((sum, order) => sum + Number(order.quantity || 0), 0);
@@ -495,8 +467,8 @@
       const cheeseRemaining = Math.max(0, 19 - cheeseDemand);
       document.getElementById("wrapStockLabel").innerText = `${wrapsRemaining} pcs`;
       document.getElementById("cheeseStockLabel").innerText = `${cheeseRemaining} pcs`;
-      document.getElementById("wrapStockBar").style.width = `${Math.max(4, wrapsRemaining / 76 * 100)}%`;
-      document.getElementById("cheeseStockBar").style.width = `${Math.max(4, cheeseRemaining / 19 * 100)}%`;
+      document.getElementById("wrapStockBar").setAttribute("width", Math.max(6, wrapsRemaining / 76 * 150));
+      document.getElementById("cheeseStockBar").setAttribute("width", Math.max(6, cheeseRemaining / 19 * 150));
       const alerts = Number(wrapsRemaining < 25) + Number(cheeseRemaining < 8);
       document.getElementById("stockAlertCount").innerText = alerts ? `${alerts} alert${alerts > 1 ? "s" : ""}` : "Stock healthy";
     }
@@ -515,12 +487,28 @@
       showToast("Refund recorded in cash flow");
     }
 
+    function updateCashFlowChart(inflow, pending, refunds) {
+      const values = [inflow, pending, 83 + refunds];
+      const labels = ["Received", "Pending", "Outflow"];
+      const colors = ["#10b981", "#f59e0b", "#f43f5e"];
+      const max = Math.max(1, ...values);
+      const bars = values.map((value, index) => {
+        const height = Math.max(5, value / max * 68);
+        const x = 48 + index * 92;
+        const y = 86 - height;
+        return `<rect x="${x}" y="${y}" width="42" height="${height}" rx="6" fill="${colors[index]}"></rect><text x="${x + 21}" y="101" text-anchor="middle" fill="#64748b" font-size="10">${labels[index]}</text><text x="${x + 21}" y="${Math.max(12, y - 5)}" text-anchor="middle" fill="#334155" font-size="10" font-weight="700">RM ${value.toFixed(0)}</text>`;
+      }).join("");
+      document.getElementById("cashFlowChart").innerHTML = `<line x1="24" y1="87" x2="304" y2="87" stroke="#cbd5e1" stroke-width="1"/>${bars}`;
+    }
+
     function updateAnalysisTrend(refunds, pending) {
       const amounts = allOrders.slice(0, 7).reverse().map(order => Number(order.total || 0));
       const max = Math.max(1, ...amounts);
-      document.getElementById("trendBars").innerHTML = amounts.length
-        ? amounts.map(amount => '<span class="flex-1 rounded-t bg-indigo-400" style="height:' + Math.max(12, amount / max * 100) + '%"></span>').join("")
-        : '<span class="text-xs text-slate-400">No activity yet</span>';
+      const points = amounts.map((amount, index) => `${20 + index * (280 / Math.max(1, amounts.length - 1))},${94 - amount / max * 62}`);
+      const svg = document.getElementById("trendChart");
+      svg.innerHTML = amounts.length
+        ? `<defs><linearGradient id="trendFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#818cf8" stop-opacity=".42"/><stop offset="100%" stop-color="#818cf8" stop-opacity=".03"/></linearGradient></defs><line x1="20" y1="95" x2="300" y2="95" stroke="#c7d2fe"/><polygon points="20,95 ${points.join(" ")} 300,95" fill="url(#trendFill)"/><polyline points="${points.join(" ")}" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${points.map(point => `<circle cx="${point.split(",")[0]}" cy="${point.split(",")[1]}" r="3.5" fill="#4f46e5"/>`).join("")}<text x="20" y="111" fill="#94a3b8" font-size="10">Oldest</text><text x="264" y="111" fill="#94a3b8" font-size="10">Latest</text>`
+        : '<text x="160" y="58" text-anchor="middle" fill="#94a3b8" font-size="12">No activity yet</text><line x1="20" y1="95" x2="300" y2="95" stroke="#c7d2fe"/>';
       const products = {};
       allOrders.forEach(order => { products[order.product] = (products[order.product] || 0) + Number(order.quantity || 0); });
       const best = Object.entries(products).sort((a, b) => b[1] - a[1])[0];
@@ -558,6 +546,7 @@
   </script>
 </body>
 </html>
+
 
 
 
