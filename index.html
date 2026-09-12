@@ -179,7 +179,7 @@
           <h2 class="text-base font-bold text-slate-900">Predictive Stock Monitor</h2>
           <span id="stockAlertCount" class="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-600 rounded-md">2 alerts</span>
         </div>
-        <p class="text-xs text-slate-500 mb-4">Live estimate calculated from your saved Supabase orders.</p>
+          <p class="text-xs text-slate-500 mb-4">Sales orders deduct recipe-linked stock automatically; supply receipts stay as expenses.</p>
 
         <div class="grid grid-cols-[1fr_auto] items-end gap-3">
           <svg id="stockChart" viewBox="0 0 240 120" class="h-32 w-full" role="img" aria-label="Remaining inventory pie chart"></svg>
@@ -262,6 +262,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allOrders = [];
+    let inventoryItems = [];
     let extractedOrder = null;
     let activeMode = "whatsapp";
     let pendingOnly = false;
@@ -331,7 +332,7 @@
 
     async function signOut() {
       await supabaseClient.auth.signOut();
-      currentUser = null; allOrders = [];
+      currentUser = null; allOrders = []; inventoryItems = [];
       document.getElementById("appShell").classList.add("hidden");
       document.getElementById("authScreen").classList.remove("hidden");
     }
@@ -403,6 +404,7 @@
       const record = { ...order, owner_id: currentUser.id, total: Number(order.total || 0) };
       const { data, error } = await supabaseClient.from("orders").upsert(record).select().single();
       if (error) throw error;
+      await loadInventory();
       return data;
     }
 
@@ -479,7 +481,10 @@
     async function loadInitialOrders() {
       try {
         if (!currentUser) return;
-        const { data, error } = await supabaseClient.from("orders").select("*").eq("owner_id", currentUser.id).order("created_at", { ascending: false });
+        const [{ data, error }] = await Promise.all([
+          supabaseClient.from("orders").select("*").eq("owner_id", currentUser.id).order("created_at", { ascending: false }),
+          loadInventory()
+        ]);
         if (error) throw error;
         allOrders = data || [];
         renderOrders();
@@ -490,6 +495,14 @@
         console.info("Using local dashboard demo mode.", error);
         setApiStatus(false);
       }
+    }
+
+    async function loadInventory() {
+      if (!currentUser) return;
+      const { data, error } = await supabaseClient.from("inventory_items").select("*").eq("owner_id", currentUser.id);
+      if (error) throw error;
+      inventoryItems = data || [];
+      updateStockProjection();
     }
 
     async function sendDemoOrder(channel) {
@@ -703,18 +716,19 @@
     }
 
     function updateStockProjection() {
-      const wrapDemand = allOrders.filter(order => /wrap/i.test(order.product || "")).reduce((sum, order) => sum + Number(order.quantity || 0), 0);
-      const cheeseDemand = allOrders.filter(order => /cheese/i.test(order.addon || "")).reduce((sum, order) => sum + Number(order.quantity || 0), 0);
-      const wrapsRemaining = Math.max(0, 76 - wrapDemand);
-      const cheeseRemaining = Math.max(0, 19 - cheeseDemand);
+      const stockFor = (sku, startingQuantity, threshold) => inventoryItems.find(item => item.sku === sku) || { quantity: startingQuantity, low_stock_threshold: threshold };
+      const wraps = stockFor("wrap", 76, 25);
+      const cheese = stockFor("cheese", 19, 8);
+      const wrapsRemaining = Math.max(0, Number(wraps.quantity));
+      const cheeseRemaining = Math.max(0, Number(cheese.quantity));
       document.getElementById("wrapStockLabel").innerText = `${wrapsRemaining} pcs`;
       document.getElementById("cheeseStockLabel").innerText = `${cheeseRemaining} pcs`;
       const totalRemaining = Math.max(1, wrapsRemaining + cheeseRemaining);
       const wrapAngle = Math.round(wrapsRemaining / totalRemaining * 360);
       document.getElementById("stockChart").innerHTML = `<circle cx="72" cy="60" r="38" fill="none" stroke="#e2e8f0" stroke-width="18"/><circle cx="72" cy="60" r="38" fill="none" stroke="#10b981" stroke-width="18" stroke-dasharray="${wrapAngle / 360 * 239} 239" transform="rotate(-90 72 60)"/><circle cx="72" cy="60" r="38" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="${(360 - wrapAngle) / 360 * 239} 239" stroke-dashoffset="-${wrapAngle / 360 * 239}" transform="rotate(-90 72 60)"/><text x="72" y="57" text-anchor="middle" fill="#0f172a" font-size="16" font-weight="700">${totalRemaining}</text><text x="72" y="72" text-anchor="middle" fill="#64748b" font-size="9">units left</text><text x="130" y="48" fill="#059669" font-size="11">● Wraps ${Math.round(wrapsRemaining / totalRemaining * 100)}%</text><text x="130" y="72" fill="#d97706" font-size="11">● Cheese ${Math.round(cheeseRemaining / totalRemaining * 100)}%</text>`;
-      const alerts = Number(wrapsRemaining < 25) + Number(cheeseRemaining < 8);
+      const alerts = Number(wrapsRemaining < wraps.low_stock_threshold) + Number(cheeseRemaining < cheese.low_stock_threshold);
       document.getElementById("stockAlertCount").innerText = alerts ? `${alerts} alert${alerts > 1 ? "s" : ""}` : "Stock healthy";
-      const stockCards = [["Wraps", wrapsRemaining, 25, "border-emerald-100 bg-emerald-50/50 text-emerald-700"], ["Cheese portions", cheeseRemaining, 8, "border-amber-100 bg-amber-50/50 text-amber-700"]];
+      const stockCards = [["Wraps", wrapsRemaining, wraps.low_stock_threshold, "border-emerald-100 bg-emerald-50/50 text-emerald-700"], ["Cheese portions", cheeseRemaining, cheese.low_stock_threshold, "border-amber-100 bg-amber-50/50 text-amber-700"]];
       document.getElementById("stockAlerts").innerHTML = stockCards.map(([name, remaining, threshold, style]) => `<div class="rounded-lg border p-3 text-xs ${style}"><span class="font-bold text-slate-900">${name}</span><span class="float-right font-bold">${remaining} units</span><p class="mt-1 text-slate-500">${remaining < threshold ? `Low-stock alert: reorder before the next ${threshold - remaining} orders.` : "Healthy level based on current order demand."}</p></div>`).join("");
     }
 
