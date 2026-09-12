@@ -31,11 +31,14 @@ async function pollTelegram() {
     for (const update of payload.result) {
       telegramOffset = update.update_id + 1;
       const message = update.message;
-      if (!message?.text) continue;
+      const receiptImage = message?.photo?.at(-1) || (message?.document?.mime_type?.startsWith("image/") ? message.document : null);
+      if (!message?.text && !receiptImage) continue;
       const sender = message.from?.username || [message.from?.first_name, message.from?.last_name].filter(Boolean).join(" ") || "Telegram customer";
-      const order = await analyseOrder({ sender, raw_text: message.text }, "telegram");
+      const order = receiptImage
+        ? await analyseReceiptPhoto({ sender, fileId: receiptImage.file_id, fileSize: receiptImage.file_size, caption: message.caption || "" })
+        : await analyseOrder({ sender, raw_text: message.text }, "telegram");
       orders.unshift(order);
-      console.log("Telegram order received from " + sender);
+      console.log(receiptImage ? "Telegram receipt received from " + sender : "Telegram order received from " + sender);
     }
   } catch (error) {
     console.warn("Telegram polling unavailable:", error.message);
@@ -112,6 +115,86 @@ async function analyseOrder(input, channel) {
     return { ...fallback, ...extracted, id: fallback.id, channel, sender: input.sender, raw_text: input.raw_text };
   } catch (error) {
     console.warn("AI analysis unavailable; using fallback:", error.message);
+    return fallback;
+  }
+}
+
+function responseText(result) {
+  if (typeof result.output_text === "string" && result.output_text.trim()) return result.output_text;
+  return (result.output || []).flatMap(item => item.content || [])
+    .filter(part => part.type === "output_text" && typeof part.text === "string")
+    .map(part => part.text).join("\n");
+}
+
+function parseJson(text) {
+  return JSON.parse(String(text || "").trim().replace(/^```json\s*|\s*```$/g, ""));
+}
+
+function fallbackReceipt({ sender, caption }) {
+  return {
+    id: `TG-REC-${Date.now()}`,
+    channel: "telegram",
+    sender,
+    customer: sender,
+    product: "Telegram receipt pending AI analysis",
+    quantity: 1,
+    addon: "Receipt photo",
+    total: 0,
+    delivery: "Expense record",
+    payment_status: "Pending receipt review",
+    status_tag: "Pending Payment",
+    raw_text: caption ? `Telegram receipt photo: ${caption}` : "Telegram receipt photo",
+    created_at: new Date().toISOString(),
+  };
+}
+
+async function telegramImageDataUrl(fileId, fileSize) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) throw new Error("Telegram token is not configured");
+  if (fileSize && fileSize > 6 * 1024 * 1024) throw new Error("Receipt image is larger than 6 MB");
+  const detailsResponse = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(fileId)}`);
+  const details = await detailsResponse.json();
+  if (!detailsResponse.ok || !details.ok || !details.result?.file_path) throw new Error("Telegram receipt file could not be downloaded");
+  const imageResponse = await fetch(`https://api.telegram.org/file/bot${token}/${details.result.file_path}`);
+  if (!imageResponse.ok) throw new Error("Telegram receipt image could not be downloaded");
+  const bytes = Buffer.from(await imageResponse.arrayBuffer());
+  if (bytes.length > 6 * 1024 * 1024) throw new Error("Receipt image is larger than 6 MB");
+  const mime = /\.png$/i.test(details.result.file_path) ? "image/png" : "image/jpeg";
+  return `data:${mime};base64,${bytes.toString("base64")}`;
+}
+
+async function analyseReceiptPhoto(input) {
+  const fallback = fallbackReceipt(input);
+  if (!process.env.OPENAI_API_KEY) return fallback;
+  try {
+    const imageUrl = await telegramImageDataUrl(input.fileId, input.fileSize);
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        store: false,
+        instructions: "Extract details from a Malaysian business receipt. Return JSON only with merchant, total, category, receipt_date, summary, and confidence. Use RM amounts; do not invent values.",
+        input: [{ role: "user", content: [
+          { type: "input_text", text: "Read this Telegram receipt photo. Any caption is: " + (input.caption || "none") },
+          { type: "input_image", image_url: imageUrl, detail: "high" }
+        ] }]
+      })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || `OpenAI returned ${response.status}`);
+    const receipt = parseJson(responseText(result));
+    return {
+      ...fallback,
+      customer: receipt.merchant || fallback.customer,
+      product: receipt.summary || receipt.category || "Receipt expense",
+      addon: `${receipt.category || "other"} · ${receipt.receipt_date || "Unknown date"}`,
+      total: Number(receipt.total || 0),
+      payment_status: "Recorded expense",
+      raw_text: `Telegram receipt: ${receipt.merchant || "Unknown merchant"}`,
+    };
+  } catch (error) {
+    console.warn("Telegram receipt analysis unavailable; adding for review:", error.message);
     return fallback;
   }
 }
