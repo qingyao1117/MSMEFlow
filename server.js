@@ -138,8 +138,18 @@ http.createServer(async (request, response) => {
     }
   }
 
+  const refundMatch = url.pathname.match(/^\/api\/orders\/([^/]+)\/refund$/);
+  if (request.method === "POST" && refundMatch) {
+    const order = orders.find(item => item.id === refundMatch[1]);
+    if (!order) return json(response, 404, { error: "Order not found" });
+    order.status_tag = "Refunded";
+    order.refunded_at = new Date().toISOString();
+    return json(response, 200, { ok: true, order });
+  }
+
   return json(response, 404, { error: "Not found" });
 }).listen(PORT, "127.0.0.1", () => {
   console.log(`MSMEFlow API is running at http://127.0.0.1:${PORT}`);
 });
+
 
