@@ -57,9 +57,9 @@
     <div class="min-w-0 pl-[72px]">
     <div class="p-5 md:p-8">
   <!-- Header -->
-  <header id="overview" class="max-w-7xl mx-auto flex flex-col items-center justify-center pb-8 gap-4 border-b border-slate-200 text-center">
-    <div class="flex flex-col items-center"><img src="assets/msmeflow-logo.svg" alt="MSMEFlow — Simplify, Organise, Grow" class="h-14 w-auto max-w-[300px] object-contain" /><span class="mt-2 text-xs font-bold tracking-widest text-emerald-600 uppercase">Business command centre</span></div>
-    <div class="flex items-center justify-center gap-3 flex-wrap">
+  <header id="overview" class="max-w-7xl mx-auto flex flex-col items-start justify-center pb-8 gap-4 border-b border-slate-200 text-left">
+    <div class="flex flex-col items-start"><img src="assets/msmeflow-logo.svg" alt="MSMEFlow — Simplify, Organise, Grow" class="h-14 w-auto max-w-[300px] object-contain" /><span class="mt-2 text-xs font-bold tracking-widest text-emerald-600 uppercase">Business command centre</span></div>
+    <div class="flex items-center justify-start gap-3 flex-wrap">
       <span id="todayLabel" class="text-xs font-medium text-slate-500"></span>
       <button onclick="refreshDashboard()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition">↻ Refresh</button>
       <span id="bridgeStatus" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -102,7 +102,7 @@
     <div class="workspace-grid grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,.9fr)]">
       <!-- Receipt intake -->
       <section data-page="receipts" class="page-section bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-      <div class="max-w-2xl">
+      <div class="mx-auto max-w-2xl">
         <div class="flex items-center justify-between mb-1">
           <h2 class="text-lg font-bold text-slate-900">AI Receipt Intake</h2>
           <span class="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">Ready</span>
@@ -134,6 +134,8 @@
         <div class="mt-4 space-y-3 text-xs">
           <a target="_blank" rel="noreferrer" href="https://smecorp.gov.my/index.php/en/about-sme-corp-malaysia" class="flex items-center gap-3 rounded-xl border border-white bg-white/90 p-3 transition hover:border-indigo-200 hover:shadow-sm"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">◌</span><span><strong class="block text-slate-800">Business advisor</strong><span class="text-slate-500">Explore SME Corp. programmes</span></span><span class="ml-auto text-indigo-600">↗</span></a>
           <a target="_blank" rel="noreferrer" href="https://www.mdec.my/programmes/business-digitalisation-initiative" class="flex items-center gap-3 rounded-xl border border-white bg-white/90 p-3 transition hover:border-sky-200 hover:shadow-sm"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 text-sky-700">⌁</span><span><strong class="block text-slate-800">Digital-growth specialist</strong><span class="text-slate-500">Explore MDEC support</span></span><span class="ml-auto text-sky-600">↗</span></a>
+          <a target="_blank" rel="noreferrer" href="https://www.tekun.gov.my/en/laman-utama-english/" class="flex items-center gap-3 rounded-xl border border-white bg-white/90 p-3 transition hover:border-emerald-200 hover:shadow-sm"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">◫</span><span><strong class="block text-slate-800">Micro-financing guide</strong><span class="text-slate-500">Explore TEKUN working-capital options</span></span><span class="ml-auto text-emerald-600">↗</span></a>
+          <a target="_blank" rel="noreferrer" href="https://www.smeinfo.com.my/" class="flex items-center gap-3 rounded-xl border border-white bg-white/90 p-3 transition hover:border-amber-200 hover:shadow-sm"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-700">▤</span><span><strong class="block text-slate-800">SME compliance guide</strong><span class="text-slate-500">Find grants, registration and operating guidance</span></span><span class="ml-auto text-amber-600">↗</span></a>
           <button onclick="requestPartnerMatch()" class="flex w-full items-center justify-between rounded-xl bg-slate-900 p-3 text-left text-white transition hover:bg-indigo-700"><span><strong class="block">Freelance bookkeeper match</strong><span class="text-[10px] text-slate-300">Request a ledger-ready handoff</span></span><span>→</span></button>
         </div>
       </section>
@@ -186,6 +188,7 @@
           <div class="space-y-3 text-right text-xs font-bold"><div><span id="wrapStockLabel" class="block text-emerald-600">76 pcs</span><span class="text-slate-400">Wraps left</span></div><div><span id="cheeseStockLabel" class="block text-amber-600">19 pcs</span><span class="text-slate-400">Cheese left</span></div></div>
         </div>
         <div id="stockAlerts" class="mt-4 grid gap-2 sm:grid-cols-2"></div>
+        <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="flex items-center justify-between"><strong class="text-xs text-slate-900">Ingredient pantry</strong><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recipe setup</span></div><p class="mt-1 text-xs text-slate-500">Wraps and cheese deduct automatically. Add the recipe quantity for these supplies before MSMEFlow can safely deduct them.</p><div class="mt-3 grid gap-2 sm:grid-cols-3"><div class="rounded-lg bg-white px-3 py-2 text-xs"><strong class="block text-slate-800">Wholemeal flour</strong><span class="text-amber-600">Needs recipe quantity</span></div><div class="rounded-lg bg-white px-3 py-2 text-xs"><strong class="block text-slate-800">Cooking oil</strong><span class="text-amber-600">Needs recipe quantity</span></div><div class="rounded-lg bg-white px-3 py-2 text-xs"><strong class="block text-slate-800">Food boxes</strong><span class="text-amber-600">Needs recipe quantity</span></div></div></div>
       </section>
       </div>
 
@@ -213,7 +216,7 @@
         <div id="cashflowSuggestions" class="mt-3 space-y-2 text-xs text-slate-700"></div>
       </section>
       <section data-page="insights" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Unit economics</span><h3 class="mt-1 text-base font-bold text-slate-900">Revenue, cost & margin by item</h3><div id="unitEconomics" class="mt-4 grid gap-3"></div></section>
-      <section data-page="insights" class="page-section rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6"><span class="text-[10px] font-bold uppercase tracking-widest text-indigo-600">Best seller</span><h3 id="bestSellerTitle" class="mt-1 text-base font-bold text-slate-900">Add orders to find your leader</h3><p id="bestSellerSummary" class="mt-2 text-xs leading-relaxed text-slate-600">Your order history will calculate unit volume, revenue and estimated profit margin here.</p></section>
+      <section data-page="insights" class="page-section overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 shadow-lg"><div class="flex items-center justify-between gap-3"><span class="rounded-full border border-indigo-300/30 bg-indigo-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-indigo-200">Best seller</span><span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Live sales signal</span></div><h3 id="bestSellerTitle" class="mt-4 text-xl font-bold text-white">Add orders to find your leader</h3><p id="bestSellerSummary" class="mt-2 max-w-xl text-xs leading-relaxed text-slate-300">Your sales history will calculate unit volume, revenue and estimated profit margin here.</p><div id="bestSellerStats" class="mt-5 grid grid-cols-3 gap-2"></div></section>
       <section id="resources" data-page="resources" class="page-section p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
         <span class="text-[10px] font-bold tracking-widest text-sky-700 uppercase">MSME resource desk</span>
         <h3 class="text-base font-bold text-slate-900 mt-1">Support matched to your next step</h3><p class="mt-1 text-xs text-slate-500">Browse the cards for public programmes and practical guides.</p>
@@ -373,10 +376,14 @@
     }
 
     async function choosePlan(plan) {
+      if (!currentUser) return showToast("Please sign in before choosing a plan");
+      const status = document.getElementById("planStatus");
+      status.innerText = `Saving ${plan}…`;
       const { error } = await supabaseClient.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, subscription_plan: plan, updated_at: new Date().toISOString() });
-      if (error) return showToast(error.message);
+      if (error) { status.innerText = "Plan could not be saved. Please try again."; return showToast(error.message); }
       await supabaseClient.auth.updateUser({ data: { subscription_plan: plan } });
       document.getElementById("planStatus").innerText = `${plan} selected for this workspace. Payment is intentionally not collected in this prototype.`;
+      document.querySelectorAll("button[onclick^=\"choosePlan\"]").forEach(button => { const buttonPlan = button.getAttribute("onclick").match(/'([^']+)'/)[1]; button.innerText = buttonPlan === plan ? "Selected ✓" : (buttonPlan === "Free Tier" ? "Choose free" : `Select ${buttonPlan.replace(" Kitchen", "")}`); });
       showToast(`${plan} saved to your profile`);
     }
 
@@ -438,7 +445,7 @@
       const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
       if (type === "refund") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}</td><td class="py-2.5 text-slate-600">${itemsDesc}</td><td class="py-2.5 text-slate-600">${order.refunded_at ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.refunded_at)) : "Today"}<span class="block text-[10px] text-rose-600">${order.refund_reason || "Reason not recorded"}</span></td><td class="py-2.5 text-right font-bold">${displayOrderTotal(order)}</td></tr>`;
       if (type === "completed") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-emerald-700">${order.payment_status || "Paid"}</td><td class="py-2.5 text-right font-bold">${displayOrderTotal(order)}</td></tr>`;
-      const utilityAction = isExpenseOrder(order) ? `<button onclick="setOrderAmount('${order.id}')" class="mr-1 rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-bold text-amber-700">Set amount</button>` : `<button onclick="setDeliveryTime('${order.id}')" class="mr-1 rounded-lg border border-sky-200 bg-white px-2 py-1 text-[10px] font-bold text-sky-700">Set time</button>`;
+      const utilityAction = isExpenseOrder(order) && parseMoney(order.total) === 0 ? `<button type="button" onclick="setOrderAmount('${order.id}')" class="mr-1 rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-bold text-amber-700 hover:bg-amber-50">Review total</button>` : !isExpenseOrder(order) ? `<button type="button" onclick="setDeliveryTime('${order.id}')" class="mr-1 rounded-lg border border-sky-200 bg-white px-2 py-1 text-[10px] font-bold text-sky-700 hover:bg-sky-50">Set time</button>` : "";
       return `<tr class="hover:bg-white/70 transition-colors"><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-amber-700">${order.payment_status || "Pending"}<span class="block font-bold text-slate-800">${displayOrderTotal(order)}</span></td><td class="py-2.5 text-right whitespace-nowrap">${utilityAction}<button onclick="completeOrder('${order.id}')" class="mr-1 rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white">Complete</button><button onclick="refundOrder('${order.id}')" class="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-bold text-rose-600">Refund</button></td></tr>`;
     }
 
@@ -821,7 +828,7 @@
         ? `<defs><linearGradient id="trendFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#818cf8" stop-opacity=".42"/><stop offset="100%" stop-color="#818cf8" stop-opacity=".03"/></linearGradient></defs><line x1="20" y1="95" x2="300" y2="95" stroke="#c7d2fe"/><polygon points="20,95 ${points.join(" ")} 300,95" fill="url(#trendFill)"/><polyline points="${points.join(" ")}" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${points.map(point => `<circle cx="${point.split(",")[0]}" cy="${point.split(",")[1]}" r="3.5" fill="#4f46e5"/>`).join("")}<text x="20" y="111" fill="#94a3b8" font-size="10">Oldest</text><text x="264" y="111" fill="#94a3b8" font-size="10">Latest</text>`
         : '<text x="160" y="58" text-anchor="middle" fill="#94a3b8" font-size="12">No activity yet</text><line x1="20" y1="95" x2="300" y2="95" stroke="#c7d2fe"/>';
       const products = {};
-      allOrders.forEach(order => { products[order.product] = (products[order.product] || 0) + Number(order.quantity || 0); });
+      allOrders.filter(order => !isExpenseOrder(order) && order.status_tag !== "Refunded").forEach(order => { products[order.product] = (products[order.product] || 0) + Number(order.quantity || 0); });
       const best = Object.entries(products).sort((a, b) => b[1] - a[1])[0];
       document.getElementById("trendTitle").innerText = best ? best[0] + " is leading demand" : "Waiting for transaction activity";
       document.getElementById("trendInsight").innerText = best ? "AI sees " + best[1] + " units in the current queue. " + (refunds ? "Refund exposure is " + formatCurrency(refunds) + ". " : "") + (pending ? "Follow up on " + formatCurrency(pending) + " in receivables." : "Cash collection is on track.") : "Upload receipts or add orders to reveal demand, spending, and cash-flow patterns.";
@@ -833,12 +840,14 @@
 
     function renderUnitEconomics() {
       const items = {};
-      allOrders.filter(order => order.status_tag !== "Refunded").forEach(order => { const key = order.product || "Other"; const entry = items[key] || { units: 0, revenue: 0 }; entry.units += Number(order.quantity || 1); entry.revenue += Number(order.total || 0); items[key] = entry; });
+      allOrders.filter(order => order.status_tag !== "Refunded" && !isExpenseOrder(order)).forEach(order => { const key = order.product || "Other"; const entry = items[key] || { units: 0, revenue: 0 }; entry.units += Number(order.quantity || 1); entry.revenue += Number(order.total || 0); items[key] = entry; });
       const rows = Object.entries(items).sort((a, b) => b[1].revenue - a[1].revenue);
       document.getElementById("unitEconomics").innerHTML = rows.length ? rows.map(([name, values]) => { const cost = values.revenue * (/(wrap|brownie)/i.test(name) ? .42 : .5); const margin = values.revenue ? ((values.revenue - cost) / values.revenue * 100) : 0; return `<div class="rounded-xl bg-slate-50 p-3 text-xs"><div class="flex justify-between"><strong class="text-slate-900">${name}</strong><span class="font-bold text-emerald-700">${margin.toFixed(0)}% margin</span></div><div class="mt-2 flex justify-between text-slate-500"><span>${values.units} units sold</span><span>Revenue ${formatCurrency(values.revenue)}</span><span>Est. cost ${formatCurrency(cost)}</span></div></div>`; }).join("") : '<p class="text-xs text-slate-500">No completed sales yet. Complete an order to calculate item margins.</p>';
       const best = rows[0];
       document.getElementById("bestSellerTitle").innerText = best ? `${best[0]} is your best seller` : "Add orders to find your leader";
       document.getElementById("bestSellerSummary").innerText = best ? `${best[1].units} units recorded, generating ${formatCurrency(best[1].revenue)} before refunds. Use it for bundles and repeat-order campaigns.` : "Your order history will calculate unit volume, revenue and estimated profit margin here.";
+      const bestStats = document.getElementById("bestSellerStats");
+      if (best) { const cost = best[1].revenue * (/(wrap|brownie)/i.test(best[0]) ? .42 : .5); const margin = best[1].revenue ? ((best[1].revenue - cost) / best[1].revenue * 100) : 0; bestStats.innerHTML = [["Units sold", best[1].units], ["Sales value", formatCurrency(best[1].revenue)], ["Est. margin", `${margin.toFixed(0)}%`]].map(([label, value]) => `<div class="rounded-xl border border-white/10 bg-white/10 p-3"><span class="block text-[10px] font-bold uppercase tracking-wide text-slate-400">${label}</span><strong class="mt-1 block text-sm text-white">${value}</strong></div>`).join(""); } else bestStats.innerHTML = "";
     }
 
     function renderAccountingBook() {
