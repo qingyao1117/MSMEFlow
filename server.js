@@ -17,6 +17,29 @@ function loadEnv() {
 
 loadEnv();
 
+let telegramOffset = 0;
+
+async function pollTelegram() {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  try {
+    const response = await fetch("https://api.telegram.org/bot" + token + "/getUpdates?offset=" + telegramOffset + "&timeout=10");
+    const payload = await response.json();
+    if (!payload.ok) return console.warn("Telegram polling failed");
+    for (const update of payload.result) {
+      telegramOffset = update.update_id + 1;
+      const message = update.message;
+      if (!message?.text) continue;
+      const sender = message.from?.username || [message.from?.first_name, message.from?.last_name].filter(Boolean).join(" ") || "Telegram customer";
+      const order = await analyseOrder({ sender, raw_text: message.text }, "telegram");
+      orders.unshift(order);
+      console.log("Telegram order received from " + sender);
+    }
+  } catch (error) {
+    console.warn("Telegram polling unavailable:", error.message);
+  }
+}
+
 const samples = {
   whatsapp: ["Aisha", "Hi, I need 2 ayam wraps with cheese for pickup."],
   telegram: ["Hana", "Order 3 brownie boxes, delivery tomorrow."],
@@ -149,7 +172,10 @@ http.createServer(async (request, response) => {
 
   return json(response, 404, { error: "Not found" });
 }).listen(PORT, "127.0.0.1", () => {
+  pollTelegram();
+  setInterval(pollTelegram, 12000);
   console.log(`MSMEFlow API is running at http://127.0.0.1:${PORT}`);
 });
+
 
 
