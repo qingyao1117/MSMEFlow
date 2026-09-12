@@ -262,7 +262,7 @@
           </span>
         </td>
         <td class="py-3 text-right">
-          \${order.status_tag === 'Refunded' ? '<span class="text-[10px] text-rose-600">Refunded</span>' : \`<button onclick="refundOrder('\${order.id}')" class="text-[10px] font-bold text-rose-600 hover:text-rose-800">Refund</button>\`}
+          ${order.status_tag === 'Refunded' ? '<span class="text-[10px] text-rose-600">Refunded</span>' : `<button onclick="refundOrder('${order.id}')" class="text-[10px] font-bold text-rose-600 hover:text-rose-800">Refund</button>`}
         </td>
       `;
 
@@ -558,6 +558,7 @@
   </script>
 </body>
 </html>
+
 
 
 
