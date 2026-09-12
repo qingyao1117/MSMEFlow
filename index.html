@@ -14,6 +14,14 @@
     .mode-button[aria-selected="true"] { background: white; box-shadow: 0 1px 3px rgb(15 23 42 / 0.12); color: rgb(15 23 42); }
     .mode-button[aria-selected="false"] { color: rgb(100 116 139); }
     .order-row { animation: slide-in 280ms ease-out; }
+    .rail-link.active { background: rgb(79 70 229 / .32); color: rgb(224 231 255); box-shadow: 0 0 0 1px rgb(129 140 248 / .22); }
+    .rail-link:not(.active):hover { background: rgb(255 255 255 / .1); color: white; }
+    .page-section[hidden] { display: none !important; }
+    .dark body, body.dark { background: #020617; color: #e2e8f0; }
+    .dark .bg-white { background-color: #0f172a !important; }
+    .dark .text-slate-900 { color: #f8fafc !important; }
+    .dark .text-slate-800, .dark .text-slate-700 { color: #cbd5e1 !important; }
+    .dark .text-slate-600, .dark .text-slate-500 { color: #94a3b8 !important; }
     @keyframes slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -29,11 +37,13 @@
     <aside aria-label="Workspace navigation" class="fixed inset-y-0 left-0 z-40 flex w-[72px] flex-col items-center border-r border-slate-800 bg-slate-950 py-5 text-slate-400 shadow-xl">
       <a href="#overview" title="MSMEFlow overview" aria-label="MSMEFlow overview" class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-400 text-lg font-black text-white shadow-lg">M</a>
       <nav class="mt-10 flex flex-col gap-3 text-lg">
-        <a href="#overview" title="Overview" aria-label="Overview" class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/25 text-indigo-200 transition hover:bg-indigo-500/40">▦</a>
-        <a href="#orders" title="Orders" aria-label="Orders" class="flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-white/10 hover:text-white">▤</a>
-        <a href="#insights" title="AI insights" aria-label="AI insights" class="flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-white/10 hover:text-white">◔</a>
-        <a href="#network" title="Partner network" aria-label="Partner network" class="flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-white/10 hover:text-white">◎</a>
-        <a href="#resources" title="Resource desk" aria-label="Resource desk" class="flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-white/10 hover:text-white">⌘</a>
+        <a href="#overview" data-page-link="overview" title="Overview" aria-label="Overview" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">▦</a>
+        <a href="#orders" data-page-link="orders" title="Orders" aria-label="Orders" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">▤</a>
+        <a href="#receipts" data-page-link="receipts" title="Receipt intake" aria-label="Receipt intake" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">⌁</a>
+        <a href="#insights" data-page-link="insights" title="AI insights" aria-label="AI insights" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">◔</a>
+        <a href="#network" data-page-link="network" title="Partner network" aria-label="Partner network" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">◎</a>
+        <a href="#resources" data-page-link="resources" title="Resource desk" aria-label="Resource desk" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">⌘</a>
+        <a href="#settings" data-page-link="settings" title="Settings" aria-label="Settings" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">⚙</a>
       </nav>
       <div class="mt-auto flex flex-col items-center gap-3"><span id="userEmail" title="Signed-in account" class="max-w-[54px] truncate text-[9px] text-slate-500"></span><button onclick="signOut()" title="Sign out" aria-label="Sign out" class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 text-sm font-bold transition hover:bg-white/10 hover:text-white">↪</button></div>
     </aside>
@@ -58,7 +68,7 @@
   <!-- Main Dashboard Grid -->
   <main class="max-w-7xl mx-auto space-y-6 mt-8">
 
-    <section class="lg:col-span-3 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
+    <section data-page="overview" class="page-section lg:col-span-3 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">Unified channel hub</span>
@@ -80,7 +90,7 @@
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,.9fr)]">
       <!-- Receipt intake -->
-      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <section data-page="receipts" class="page-section bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
       <div class="max-w-2xl">
         <div class="flex items-center justify-between mb-1">
           <h2 class="text-lg font-bold text-slate-900">AI Receipt Intake</h2>
@@ -97,6 +107,7 @@
           Analyze receipt with AI
         </button>
         <button id="addOrderButton" onclick="addExtractedOrder()" disabled class="mt-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-500 text-white rounded-xl text-sm font-semibold transition">Add extracted order to queue</button>
+        <div id="receiptResult" class="mt-3 hidden rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-xs text-emerald-900"></div>
       </div>
 
         <p id="extractionMode" class="mt-4 text-xs font-medium text-slate-500">Waiting for a receipt. Extraction details stay in the background.</p>
@@ -105,7 +116,7 @@
       </section>
 
       <!-- Partner network -->
-      <section id="network" class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6 shadow-sm">
+      <section id="network" data-page="network" class="page-section rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6 shadow-sm">
         <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">MSMEFlow partner network</span>
         <h2 class="mt-1 text-lg font-bold text-slate-900">Bring the right people into your business</h2>
         <p class="mt-1 text-xs leading-relaxed text-slate-600">Your live ledger becomes a clear handoff for specialists — never a shared password or an exposed order queue.</p>
@@ -121,7 +132,7 @@
       <div class="space-y-6">
 
       <!-- Live Order Queue -->
-      <section id="orders" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <section id="orders" data-page="orders" class="page-section bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h2 class="text-lg font-bold text-slate-900">Live Order Queue</h2>
@@ -151,7 +162,7 @@
       </section>
 
       <!-- Predictive Stock Monitor -->
-      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <section data-page="orders" class="page-section bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-base font-bold text-slate-900">Predictive Stock Monitor</h2>
           <span id="stockAlertCount" class="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-600 rounded-md">2 alerts</span>
@@ -159,12 +170,7 @@
         <p class="text-xs text-slate-500 mb-4">Projected against today's demand.</p>
 
         <div class="grid grid-cols-[1fr_auto] items-end gap-3">
-          <svg viewBox="0 0 240 120" class="h-32 w-full" role="img" aria-label="Remaining inventory bar chart">
-            <line x1="32" y1="100" x2="232" y2="100" stroke="#e2e8f0" stroke-width="2"/>
-            <text x="0" y="34" fill="#64748b" font-size="11">Wraps</text><rect x="50" y="18" width="150" height="22" rx="6" fill="#ecfdf5"/><rect id="wrapStockBar" x="50" y="18" width="143" height="22" rx="6" fill="#10b981"/>
-            <text x="0" y="76" fill="#64748b" font-size="11">Cheese</text><rect x="50" y="60" width="150" height="22" rx="6" fill="#fff7ed"/><rect id="cheeseStockBar" x="50" y="60" width="36" height="22" rx="6" fill="#f59e0b"/>
-            <text x="50" y="116" fill="#94a3b8" font-size="10">0</text><text x="170" y="116" fill="#94a3b8" font-size="10">80-unit scale</text>
-          </svg>
+          <svg id="stockChart" viewBox="0 0 240 120" class="h-32 w-full" role="img" aria-label="Remaining inventory pie chart"></svg>
           <div class="space-y-3 text-right text-xs font-bold"><div><span id="wrapStockLabel" class="block text-emerald-600">76 pcs</span><span class="text-slate-400">Wraps left</span></div><div><span id="cheeseStockLabel" class="block text-amber-600">19 pcs</span><span class="text-slate-400">Cheese left</span></div></div>
         </div>
       </section>
@@ -172,7 +178,7 @@
 
       <div class="space-y-6">
 
-      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <section data-page="insights" class="page-section bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex items-start justify-between gap-3"><div><span class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Cash position</span><h2 class="mt-1 text-lg font-bold text-slate-900">Cash flow, at a glance</h2></div><span class="rounded-full bg-slate-900 px-2.5 py-1 text-[10px] font-bold text-white">LIVE</span></div>
         <p class="mt-1 text-xs text-slate-500">Green = received · amber = awaiting payment · pink = money out.</p>
         <div class="mt-5 rounded-xl border border-slate-200 bg-slate-950 p-4 shadow-inner">
@@ -182,18 +188,18 @@
         <div class="hidden"><span id="inflowTotal"></span><span id="pendingTotal"></span><span id="outflowTotal"></span></div>
       </section>
 
-      <section id="insights" class="p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
+      <section id="insights" data-page="insights" class="page-section p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
         <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">AI analysis trend</span>
         <h3 id="trendTitle" class="text-base font-bold text-slate-900 mt-1">Waiting for transaction activity</h3>
         <svg id="trendChart" viewBox="0 0 320 116" class="mt-3 h-28 w-full" role="img" aria-label="Demand trend chart"></svg>
         <p id="trendInsight" class="text-xs text-slate-600 mt-3 leading-relaxed">Upload receipts or add orders to reveal demand, spending, and cash-flow patterns.</p>
       </section>
-      <section class="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+      <section data-page="insights" class="page-section p-6 rounded-2xl bg-emerald-50/60 border border-emerald-100">
         <span class="text-[10px] font-bold tracking-widest text-emerald-700 uppercase">Personalized cash-flow actions</span>
         <h3 id="cashflowTitle" class="text-base font-bold text-slate-900 mt-1">No recommendations yet</h3>
         <div id="cashflowSuggestions" class="mt-3 space-y-2 text-xs text-slate-700"></div>
       </section>
-      <section id="resources" class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+      <section id="resources" data-page="resources" class="page-section p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
         <span class="text-[10px] font-bold tracking-widest text-sky-700 uppercase">MSME resource desk</span>
         <h3 class="text-base font-bold text-slate-900 mt-1">Support matched to your next step</h3>
         <div class="mt-3 grid gap-2 text-xs">
@@ -201,6 +207,21 @@
           <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://www.tekun.gov.my/en/laman-utama-english/"><strong>Working-capital options</strong><span class="block mt-1 text-slate-500">TEKUN Nasional financing information</span></a>
           <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://www.mdec.my/programmes/business-digitalisation-initiative"><strong>Digital growth</strong><span class="block mt-1 text-slate-500">MDEC Business Digitalisation Initiative</span></a>
         </div>
+      </section>
+      <section id="settings" data-page="settings" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <span class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Workspace settings</span>
+        <h2 class="mt-1 text-lg font-bold text-slate-900">Profile, appearance & security</h2>
+        <div class="mt-5 grid gap-5 md:grid-cols-2">
+          <form onsubmit="saveProfile(event)" class="rounded-xl border border-slate-200 p-4"><h3 class="font-bold text-slate-900">Business profile</h3><label class="mt-3 block text-xs font-semibold text-slate-600">Business name<input id="settingsBusinessName" required class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Your business" /></label><label class="mt-3 block text-xs font-semibold text-slate-600">Account email<input id="settingsEmail" disabled class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" /></label><button class="mt-4 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Save profile</button></form>
+          <div class="rounded-xl border border-slate-200 p-4"><h3 class="font-bold text-slate-900">Appearance & language</h3><label class="mt-3 block text-xs font-semibold text-slate-600">Language<select id="languageSelect" onchange="saveLanguage()" class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="en">English</option><option value="ms">Bahasa Melayu</option><option value="zh">中文</option></select></label><button onclick="toggleTheme()" class="mt-4 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700">Toggle light / dark mode</button></div>
+          <form onsubmit="changePassword(event)" class="rounded-xl border border-slate-200 p-4"><h3 class="font-bold text-slate-900">Security</h3><p class="mt-1 text-xs text-slate-500">Set a new workspace password. Supabase keeps it encrypted.</p><label class="mt-3 block text-xs font-semibold text-slate-600">New passcode / password<input id="newPassword" type="password" minlength="6" required class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="At least 6 characters" /></label><button class="mt-4 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white">Update password</button></form>
+          <div class="rounded-xl border border-slate-200 p-4"><h3 class="font-bold text-slate-900">Session</h3><p class="mt-1 text-xs text-slate-500">Only you can read your orders and profile through Supabase row-level security.</p><button onclick="signOut()" class="mt-4 rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600">Sign out of workspace</button></div>
+        </div>
+      </section>
+      <section id="freelancers" data-page="freelancers" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <button onclick="location.hash='network'" class="text-xs font-bold text-indigo-600">← Back to partner network</button>
+        <span class="mt-4 block text-[10px] font-bold tracking-widest text-indigo-600 uppercase">Freelancer directory</span><h2 class="mt-1 text-xl font-bold text-slate-900">Find a ledger-ready bookkeeper</h2><p class="mt-2 max-w-xl text-sm text-slate-600">This demo page keeps your data private until you choose to share a monthly export with a verified partner.</p>
+        <div class="mt-5 grid gap-3 md:grid-cols-2"><div class="rounded-xl border border-slate-200 p-4"><strong class="text-slate-900">Bookkeeper — F&B focus</strong><p class="mt-1 text-xs text-slate-500">Monthly reconciliation, receipts and cash-flow reporting.</p><button onclick="showToast('Demo request saved. Add a verified partner directory before inviting a real person.')" class="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Request introduction</button></div><div class="rounded-xl border border-slate-200 p-4"><strong class="text-slate-900">Financial analyst — growth planning</strong><p class="mt-1 text-xs text-slate-500">Demand trends, pricing and working-capital planning.</p><button onclick="showToast('Demo request saved. Add a verified partner directory before inviting a real person.')" class="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Request introduction</button></div></div>
       </section>
     </div>
     </div>
@@ -225,6 +246,8 @@
     let activeMode = "whatsapp";
     let pendingOnly = false;
     let receiptName = "";
+    let receiptProcessing = false;
+    let savingExtracted = false;
     let currentUser = null;
     let signUpMode = false;
 
@@ -271,8 +294,11 @@
       document.getElementById("authScreen").classList.add("hidden");
       document.getElementById("appShell").classList.remove("hidden");
       document.getElementById("userEmail").innerText = user.email || "Signed-in business";
+      document.getElementById("settingsEmail").value = user.email || "";
+      document.getElementById("settingsBusinessName").value = user.user_metadata?.business_name || "";
       await loadInitialOrders();
       initRealtimeSubscription();
+      routeWorkspace();
     }
 
     async function ensureProfile(user) {
@@ -286,6 +312,42 @@
       currentUser = null; allOrders = [];
       document.getElementById("appShell").classList.add("hidden");
       document.getElementById("authScreen").classList.remove("hidden");
+    }
+
+    function routeWorkspace() {
+      const allowed = ["overview", "orders", "receipts", "insights", "network", "resources", "settings", "freelancers"];
+      const page = allowed.includes(location.hash.slice(1)) ? location.hash.slice(1) : "overview";
+      document.querySelectorAll("[data-page]").forEach(section => { section.hidden = section.dataset.page !== page; });
+      document.querySelectorAll("[data-page-link]").forEach(link => link.classList.toggle("active", link.dataset.pageLink === page));
+      window.scrollTo(0, 0);
+    }
+
+    async function saveProfile(event) {
+      event.preventDefault();
+      const businessName = document.getElementById("settingsBusinessName").value.trim();
+      const { error } = await supabaseClient.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, business_name: businessName, updated_at: new Date().toISOString() });
+      if (error) return showToast(error.message);
+      await supabaseClient.auth.updateUser({ data: { business_name: businessName } });
+      showToast("Business profile saved");
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle("dark");
+      localStorage.setItem("msmeflow-theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+    }
+
+    function saveLanguage() {
+      localStorage.setItem("msmeflow-language", document.getElementById("languageSelect").value);
+      showToast("Language preference saved");
+    }
+
+    async function changePassword(event) {
+      event.preventDefault();
+      const password = document.getElementById("newPassword").value;
+      const { error } = await supabaseClient.auth.updateUser({ password });
+      if (error) return showToast(error.message);
+      event.target.reset();
+      showToast("Workspace password updated");
     }
 
     async function saveOrder(order) {
@@ -431,7 +493,7 @@
           { event: "INSERT", schema: "public", table: "orders", filter: `owner_id=eq.${currentUser.id}` },
           (payload) => {
             console.log("Realtime order received:", payload.new);
-            allOrders.unshift(payload.new);
+            if (!allOrders.some(order => order.id === payload.new.id)) allOrders.unshift(payload.new);
             renderOrders();
             updateMetrics();
 
@@ -471,6 +533,9 @@
       if (!file) return;
       receiptName = file.name;
       window.receiptFile = file;
+      extractedOrder = null;
+      document.getElementById("addOrderButton").disabled = true;
+      document.getElementById("receiptResult").classList.add("hidden");
       document.getElementById("receiptLabel").innerText = receiptName;
       document.getElementById("extractionMode").innerText = "receipt selected";
       showToast("Receipt ready to extract");
@@ -482,27 +547,46 @@
       if (activeMode !== "whatsapp") setMode("whatsapp");
     }
 
-    function simulateManualExtract() {
+    async function simulateManualExtract() {
       const button = document.getElementById("extractButton");
       if (!window.receiptFile) {
         showToast("Choose a receipt photo first");
         return;
       }
-      extractedOrder = {
-        id: "REC-" + Date.now(),
-        customer: "Receipt expense",
-        product: "Receipt pending AI analysis",
-        quantity: 1,
-        addon: "Physical receipt",
-        total: 0,
-        delivery: "Expense record",
-        status_tag: "Confirmed",
-        raw_text: "Receipt: " + receiptName
-      };
-      document.getElementById("extractionMode").innerText = "receipt ready for AI";
-      document.getElementById("jsonPreview").innerText = JSON.stringify(extractedOrder, null, 2);
-      document.getElementById("addOrderButton").disabled = false;
-      showToast("Receipt prepared for the ledger");
+      if (receiptProcessing) return;
+      if (extractedOrder?.raw_text === "Receipt: " + receiptName) {
+        showToast("This receipt is already analyzed. Save it once below.");
+        return;
+      }
+      receiptProcessing = true;
+      button.disabled = true;
+      button.innerText = "Reading receipt…";
+      document.getElementById("extractionMode").innerText = "AI is reading your receipt privately";
+      try {
+        const imageDataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(window.receiptFile);
+        });
+        const response = await fetch("/api/analyze-receipt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageDataUrl, fileName: receiptName }) });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Receipt analysis failed");
+        const receipt = payload.receipt;
+        extractedOrder = { id: "REC-" + Date.now(), customer: receipt.merchant || "Receipt expense", product: receipt.summary || receipt.category || "Receipt expense", quantity: 1, addon: `${receipt.category || "other"} · ${receipt.receipt_date || "Unknown date"}`, total: Number(receipt.total || 0), delivery: "Expense record", status_tag: "Confirmed", raw_text: "Receipt: " + receiptName, analysis_source: "OpenAI receipt analysis" };
+        document.getElementById("receiptResult").innerHTML = `<strong>Detected:</strong> ${receipt.merchant || "Unknown merchant"} · ${formatCurrency(receipt.total)} · ${receipt.category || "other"}<span class="block mt-1 text-emerald-700">${receipt.summary || "Receipt analyzed"} (${receipt.confidence || "medium"} confidence)</span>`;
+        document.getElementById("receiptResult").classList.remove("hidden");
+        document.getElementById("extractionMode").innerText = "Analysis ready — save once to the ledger";
+        document.getElementById("addOrderButton").disabled = false;
+        showToast("Receipt analyzed. Review the result, then save it once.");
+      } catch (error) {
+        document.getElementById("extractionMode").innerText = "Analysis could not be completed";
+        showToast(error.message || "Could not read receipt");
+      } finally {
+        receiptProcessing = false;
+        button.disabled = false;
+        button.innerText = "Analyze receipt with AI";
+      }
       return;
       const text = document.getElementById("rawMessage").value.trim();
       if (activeMode === "whatsapp" && !text) {
@@ -544,12 +628,16 @@
     }
 
     async function addExtractedOrder() {
-      if (!extractedOrder) return;
+      if (!extractedOrder || savingExtracted) return;
+      savingExtracted = true;
+      document.getElementById("addOrderButton").disabled = true;
       try {
         const saved = await saveOrder(extractedOrder);
-        allOrders.unshift(saved);
+        if (!allOrders.some(order => order.id === saved.id)) allOrders.unshift(saved);
       } catch (error) {
         showToast(error.message || "Could not save receipt");
+        document.getElementById("addOrderButton").disabled = false;
+        savingExtracted = false;
         return;
       }
       renderOrders();
@@ -557,6 +645,7 @@
       document.getElementById("addOrderButton").disabled = true;
       showToast(`${extractedOrder.customer}'s order added to the queue`);
       extractedOrder = null;
+      savingExtracted = false;
     }
 
     function updateStockProjection() {
@@ -566,9 +655,9 @@
       const cheeseRemaining = Math.max(0, 19 - cheeseDemand);
       document.getElementById("wrapStockLabel").innerText = `${wrapsRemaining} pcs`;
       document.getElementById("cheeseStockLabel").innerText = `${cheeseRemaining} pcs`;
-      // Both bars share an 80-unit scale so their lengths can be compared directly.
-      document.getElementById("wrapStockBar").setAttribute("width", Math.max(6, wrapsRemaining / 80 * 150));
-      document.getElementById("cheeseStockBar").setAttribute("width", Math.max(6, cheeseRemaining / 80 * 150));
+      const totalRemaining = Math.max(1, wrapsRemaining + cheeseRemaining);
+      const wrapAngle = Math.round(wrapsRemaining / totalRemaining * 360);
+      document.getElementById("stockChart").innerHTML = `<circle cx="72" cy="60" r="38" fill="none" stroke="#e2e8f0" stroke-width="18"/><circle cx="72" cy="60" r="38" fill="none" stroke="#10b981" stroke-width="18" stroke-dasharray="${wrapAngle / 360 * 239} 239" transform="rotate(-90 72 60)"/><circle cx="72" cy="60" r="38" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="${(360 - wrapAngle) / 360 * 239} 239" stroke-dashoffset="-${wrapAngle / 360 * 239}" transform="rotate(-90 72 60)"/><text x="72" y="57" text-anchor="middle" fill="#0f172a" font-size="16" font-weight="700">${totalRemaining}</text><text x="72" y="72" text-anchor="middle" fill="#64748b" font-size="9">units left</text><text x="130" y="48" fill="#059669" font-size="11">● Wraps ${Math.round(wrapsRemaining / totalRemaining * 100)}%</text><text x="130" y="72" fill="#d97706" font-size="11">● Cheese ${Math.round(cheeseRemaining / totalRemaining * 100)}%</text>`;
       const alerts = Number(wrapsRemaining < 25) + Number(cheeseRemaining < 8);
       document.getElementById("stockAlertCount").innerText = alerts ? `${alerts} alert${alerts > 1 ? "s" : ""}` : "Stock healthy";
     }
@@ -635,7 +724,7 @@
     }
 
     function requestPartnerMatch() {
-      showToast("Bookkeeper match request noted — add a matching partner before inviting them into a live workspace.");
+      location.hash = "freelancers";
     }
 
     // Insert a demo order directly into Supabase for instant testing
@@ -644,6 +733,9 @@
     }
 
     // Startup
+    document.documentElement.classList.toggle("dark", localStorage.getItem("msmeflow-theme") === "dark");
+    document.getElementById("languageSelect").value = localStorage.getItem("msmeflow-language") || "en";
+    window.addEventListener("hashchange", routeWorkspace);
     document.getElementById("todayLabel").innerText = new Intl.DateTimeFormat("en-MY", { weekday: "short", day: "numeric", month: "short" }).format(new Date());
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) openWorkspace(session.user);
@@ -651,12 +743,4 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
