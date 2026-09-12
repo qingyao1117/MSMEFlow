@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" role="img" aria-label="MSMEFlow — Simplify, Organise, Grow">
+  <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#14ae86"/><stop offset="1" stop-color="#15c67e"/></linearGradient></defs>
+  <text x="8" y="62" font-family="Inter,Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="-3" fill="#102e5a">MSME</text><text x="213" y="62" font-family="Inter,Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="-3" fill="url(#g)">Flow</text>
+  <text x="74" y="100" font-family="Inter,Arial,sans-serif" font-size="20" letter-spacing="3" fill="#17345d">Simplify</text><circle cx="210" cy="93" r="4" fill="#16b58b"/><text x="235" y="100" font-family="Inter,Arial,sans-serif" font-size="20" letter-spacing="3" fill="#17345d">Organise</text><circle cx="402" cy="93" r="4" fill="#16b58b"/><text x="427" y="100" font-family="Inter,Arial,sans-serif" font-size="20" letter-spacing="3" fill="#17345d">Grow</text>
+</svg>
+
