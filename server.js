@@ -130,6 +130,12 @@ function parseJson(text) {
   return JSON.parse(String(text || "").trim().replace(/^```json\s*|\s*```$/g, ""));
 }
 
+function moneyValue(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  const amount = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(amount) ? amount : 0;
+}
+
 function fallbackReceipt({ sender, caption }) {
   return {
     id: `TG-REC-${Date.now()}`,
@@ -174,7 +180,7 @@ async function analyseReceiptPhoto(input) {
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         store: false,
-        instructions: "Extract details from a Malaysian business receipt. Return JSON only with merchant, total, category, receipt_date, summary, and confidence. Use RM amounts; do not invent values.",
+        instructions: "Extract details from a Malaysian business receipt. Return JSON only with merchant, total, category, receipt_date, summary, and confidence. total must be the final amount payable including tax as a plain number (for example 78.23), never a subtotal. Use null if it is not visible; do not invent values.",
         input: [{ role: "user", content: [
           { type: "input_text", text: "Read this Telegram receipt photo. Any caption is: " + (input.caption || "none") },
           { type: "input_image", image_url: imageUrl, detail: "high" }
@@ -189,8 +195,8 @@ async function analyseReceiptPhoto(input) {
       customer: receipt.merchant || fallback.customer,
       product: receipt.summary || receipt.category || "Receipt expense",
       addon: `${receipt.category || "other"} · ${receipt.receipt_date || "Unknown date"}`,
-      total: Number(receipt.total || 0),
-      payment_status: "Recorded expense",
+      total: moneyValue(receipt.total ?? receipt.total_amount ?? receipt.grand_total ?? receipt.amount),
+      payment_status: moneyValue(receipt.total ?? receipt.total_amount ?? receipt.grand_total ?? receipt.amount) ? "Recorded expense" : "Amount needs review",
       raw_text: `Telegram receipt: ${receipt.merchant || "Unknown merchant"}`,
     };
   } catch (error) {
