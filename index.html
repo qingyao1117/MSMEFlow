@@ -57,41 +57,23 @@
       </div>
     </section>
 
-    <!-- Column 1: AI Ingest Playground -->
+    <!-- Column 1: Receipt intake -->
     <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6">
       <div>
         <div class="flex items-center justify-between mb-1">
-          <h2 class="text-lg font-bold text-slate-900">AI Ingest Playground</h2>
+          <h2 class="text-lg font-bold text-slate-900">AI Receipt Intake</h2>
           <span class="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">Ready</span>
         </div>
-        <p class="text-xs text-slate-500 mb-5">Turn messy incoming messages into actions.</p>
-
-        <!-- Mode Toggle -->
-        <div class="grid grid-cols-2 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-semibold text-center">
-          <button type="button" data-mode="whatsapp" onclick="setMode('whatsapp')" aria-selected="true" class="mode-button py-2 rounded-lg transition">WhatsApp</button>
-          <button type="button" data-mode="receipt" onclick="setMode('receipt')" aria-selected="false" class="mode-button py-2 rounded-lg transition">Receipt OCR</button>
-        </div>
-
-        <!-- Quick Presets -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button onclick="setSample('Hi, Aisha here. I need 12 ayam wraps with cheese, please.')" class="px-2.5 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 font-medium hover:bg-emerald-100 transition">Lunch order</button>
-          <button onclick="setSample('Order 5 box brownies extra cheese pickup esok petang.')" class="px-2.5 py-1 text-xs rounded-full bg-amber-50 text-amber-700 font-medium hover:bg-amber-100 transition">Quick reorder</button>
-          <button onclick="setSample('Hi boss nak order 30 packs chicken wrap delivery office pukul 12.')" class="px-2.5 py-1 text-xs rounded-full bg-purple-50 text-purple-700 font-medium hover:bg-purple-100 transition">Bulk order</button>
-        </div>
-
-        <!-- Ingest Textarea -->
-        <div id="whatsappInput">
-          <textarea id="rawMessage" rows="4" class="w-full p-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none" placeholder="Paste incoming WhatsApp message here...">Hi, Aisha here. I need 12 ayam wraps with cheese, please.</textarea>
-        </div>
-        <label id="receiptInput" class="hidden cursor-pointer rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center transition hover:border-emerald-400 hover:bg-emerald-50/50">
-          <input id="receiptFile" type="file" accept="image/*,.pdf" class="hidden" onchange="handleReceipt(event)" />
+        <p class="text-xs text-slate-500 mb-5">Upload a physical receipt and let AI extract its expense details.</p>
+        <label id="receiptInput" class="cursor-pointer rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center transition hover:border-emerald-400 hover:bg-emerald-50/50">
+          <input id="receiptFile" type="file" accept="image/*" class="hidden" onchange="handleReceipt(event)" />
           <span class="block text-2xl mb-2">⌁</span>
           <span id="receiptLabel" class="block text-sm font-semibold text-slate-700">Upload a receipt</span>
-          <span class="block text-xs text-slate-500 mt-1">PNG, JPG, or PDF · demo extraction</span>
+          <span class="block text-xs text-slate-500 mt-1">Upload a JPG, PNG, or WEBP photo</span>
         </label>
 
         <button id="extractButton" onclick="simulateManualExtract()" class="mt-4 w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
-          Extract order entities
+          Analyze receipt with AI
         </button>
         <button id="addOrderButton" onclick="addExtractedOrder()" disabled class="mt-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-500 text-white rounded-xl text-sm font-semibold transition">Add extracted order to queue</button>
       </div>
@@ -136,6 +118,7 @@
                 <th class="pb-3">Items</th>
                 <th class="pb-3">Total</th>
                 <th class="pb-3 text-right">Status</th>
+                <th class="pb-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody id="ordersTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
@@ -195,7 +178,7 @@
           </div>
           <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
             <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Outflow</span>
-            <div class="text-xl font-bold text-rose-600 mt-1">RM 83.00</div>
+            <div id="outflowTotal" class="text-xl font-bold text-rose-600 mt-1">RM 83.00</div>
           </div>
           <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
             <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Margin %</span>
@@ -204,13 +187,16 @@
         </div>
       </section>
 
-      <!-- Phase 2 Preview -->
       <section class="p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
-        <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">Phase 2 Preview</span>
-        <h3 class="text-base font-bold text-slate-900 mt-1">MSMEFlow Partner Network</h3>
-        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-          Give your freelance bookkeeper a clean, reconciled handoff — no spreadsheet chasing.
-        </p>
+        <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">AI analysis trend</span>
+        <h3 id="trendTitle" class="text-base font-bold text-slate-900 mt-1">Waiting for transaction activity</h3>
+        <div id="trendBars" class="mt-4 flex h-16 items-end gap-1.5"></div>
+        <p id="trendInsight" class="text-xs text-slate-600 mt-3 leading-relaxed">Upload receipts or add orders to reveal demand, spending, and cash-flow patterns.</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+        <span class="text-[10px] font-bold tracking-widest text-emerald-700 uppercase">Personalized cash-flow actions</span>
+        <h3 id="cashflowTitle" class="text-base font-bold text-slate-900 mt-1">No recommendations yet</h3>
+        <div id="cashflowSuggestions" class="mt-3 space-y-2 text-xs text-slate-700"></div>
       </section>
     </div>
 
@@ -260,7 +246,9 @@
       tr.className = "order-row hover:bg-slate-50/80 transition-colors";
 
       const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
-      const statusClass = order.status_tag === 'Confirmed' 
+      const statusClass = order.status_tag === 'Refunded'
+        ? 'bg-rose-50 text-rose-700 border-rose-200'
+        : order.status_tag === 'Confirmed'
         ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
         : 'bg-amber-50 text-amber-700 border-amber-200';
 
@@ -272,6 +260,9 @@
           <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${statusClass}">
             ${order.status_tag || 'Pending'}
           </span>
+        </td>
+        <td class="py-3 text-right">
+          \${order.status_tag === 'Refunded' ? '<span class="text-[10px] text-rose-600">Refunded</span>' : \`<button onclick="refundOrder('\${order.id}')" class="text-[10px] font-bold text-rose-600 hover:text-rose-800">Refund</button>\`}
         </td>
       `;
 
@@ -289,15 +280,18 @@
 
     // Recalculate totals
     function updateMetrics() {
-      const pendingCount = allOrders.filter(order => !["Confirmed", "Fulfilled"].includes(order.status_tag)).length;
+      const pendingCount = allOrders.filter(order => !["Confirmed", "Fulfilled", "Refunded"].includes(order.status_tag)).length;
       document.getElementById("orderCount").innerText = `${allOrders.length} orders today · ${pendingCount} awaiting action`;
 
       let totalInflow = 0;
       let totalPending = 0;
+      let refunds = 0;
 
       allOrders.forEach(o => {
         const val = parseFloat(o.total || 0);
-        if (o.status_tag === 'Confirmed' || o.status_tag === 'Fulfilled') {
+        if (o.status_tag === 'Refunded') {
+          refunds += val;
+        } else if (o.status_tag === 'Confirmed' || o.status_tag === 'Fulfilled') {
           totalInflow += val;
         } else {
           totalPending += val;
@@ -306,7 +300,9 @@
 
       document.getElementById("inflowTotal").innerText = formatCurrency(totalInflow);
       document.getElementById("pendingTotal").innerText = formatCurrency(totalPending);
+      document.getElementById("outflowTotal").innerText = formatCurrency(83 + refunds);
       updateStockProjection();
+      updateAnalysisTrend(refunds, totalPending);
     }
 
     // 1. Initial Load: Fetch existing orders from Supabase
@@ -403,6 +399,7 @@
       const file = event.target.files[0];
       if (!file) return;
       receiptName = file.name;
+      window.receiptFile = file;
       document.getElementById("receiptLabel").innerText = receiptName;
       document.getElementById("extractionMode").innerText = "receipt selected";
       showToast("Receipt ready to extract");
@@ -416,6 +413,26 @@
 
     function simulateManualExtract() {
       const button = document.getElementById("extractButton");
+      if (!window.receiptFile) {
+        showToast("Choose a receipt photo first");
+        return;
+      }
+      extractedOrder = {
+        id: "REC-" + Date.now(),
+        customer: "Receipt expense",
+        product: "Receipt pending AI analysis",
+        quantity: 1,
+        addon: "Physical receipt",
+        total: 0,
+        delivery: "Expense record",
+        status_tag: "Confirmed",
+        raw_text: "Receipt: " + receiptName
+      };
+      document.getElementById("extractionMode").innerText = "receipt ready for AI";
+      document.getElementById("jsonPreview").innerText = JSON.stringify(extractedOrder, null, 2);
+      document.getElementById("addOrderButton").disabled = false;
+      showToast("Receipt prepared for the ledger");
+      return;
       const text = document.getElementById("rawMessage").value.trim();
       if (activeMode === "whatsapp" && !text) {
         showToast("Paste a customer message first");
@@ -484,6 +501,37 @@
       document.getElementById("stockAlertCount").innerText = alerts ? `${alerts} alert${alerts > 1 ? "s" : ""}` : "Stock healthy";
     }
 
+    async function refundOrder(id) {
+      try {
+        const response = await fetch(API_BASE + "/orders/" + id + "/refund", { method: "POST" });
+        if (!response.ok) throw new Error("Refund unavailable");
+        const updated = (await response.json()).order;
+        allOrders = allOrders.map(order => order.id === id ? updated : order);
+      } catch {
+        allOrders = allOrders.map(order => order.id === id ? { ...order, status_tag: "Refunded" } : order);
+      }
+      renderOrders();
+      updateMetrics();
+      showToast("Refund recorded in cash flow");
+    }
+
+    function updateAnalysisTrend(refunds, pending) {
+      const amounts = allOrders.slice(0, 7).reverse().map(order => Number(order.total || 0));
+      const max = Math.max(1, ...amounts);
+      document.getElementById("trendBars").innerHTML = amounts.length
+        ? amounts.map(amount => '<span class="flex-1 rounded-t bg-indigo-400" style="height:' + Math.max(12, amount / max * 100) + '%"></span>').join("")
+        : '<span class="text-xs text-slate-400">No activity yet</span>';
+      const products = {};
+      allOrders.forEach(order => { products[order.product] = (products[order.product] || 0) + Number(order.quantity || 0); });
+      const best = Object.entries(products).sort((a, b) => b[1] - a[1])[0];
+      document.getElementById("trendTitle").innerText = best ? best[0] + " is leading demand" : "Waiting for transaction activity";
+      document.getElementById("trendInsight").innerText = best ? "AI sees " + best[1] + " units in the current queue. " + (refunds ? "Refund exposure is " + formatCurrency(refunds) + ". " : "") + (pending ? "Follow up on " + formatCurrency(pending) + " in receivables." : "Cash collection is on track.") : "Upload receipts or add orders to reveal demand, spending, and cash-flow patterns.";
+      document.getElementById("cashflowTitle").innerText = pending ? "Prioritize cash collection" : "Ready to grow revenue";
+      document.getElementById("cashflowSuggestions").innerHTML = pending
+        ? "<div>• Send payment reminders for " + formatCurrency(pending) + " outstanding.</div><div>• Target office lunch and event-catering customers for higher-value repeat orders.</div>"
+        : "<div>• Use your best-selling item to pitch office lunch packages.</div><div>• Ask repeat customers for weekly pre-orders to stabilize cash flow.</div>";
+    }
+
     let toastTimer;
     function showToast(message) {
       const toast = document.getElementById("toast");
@@ -510,5 +558,6 @@
   </script>
 </body>
 </html>
+
 
 
