@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-label="MSMEFlow mark">
+  <defs><linearGradient id="a" x1="0" x2="1" y1="1" y2="0"><stop stop-color="#133564"/><stop offset="1" stop-color="#2455a4"/></linearGradient><linearGradient id="b" x1="0" x2="1"><stop stop-color="#049c8a"/><stop offset="1" stop-color="#2bd28e"/></linearGradient></defs>
+  <path fill="url(#a)" d="M9 14c0-5 6-8 10-5l29 20-15 11-16-11v28c0 4-3 7-7 7H9z"/>
+  <path fill="url(#b)" d="M20 25l13 11c7 6 16 6 23 1l9-7v20c0 6-5 10-10 10h-4V31l-5 4c-8 6-19 6-27 0l-8-6z"/>
+  <path fill="#19ba83" d="M38 34l23-23 7 7-2-10-10 3 6 6-23 22z"/>
+</svg>
+
