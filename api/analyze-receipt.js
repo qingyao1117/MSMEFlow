@@ -5,8 +5,18 @@ function send(res, status, body) {
 }
 
 function parseJson(text) {
+  if (!text || !text.trim()) throw new Error("The AI response did not contain receipt text.");
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
   return JSON.parse(fenced ? fenced[1] : text);
+}
+
+function responseText(result) {
+  if (typeof result.output_text === "string" && result.output_text.trim()) return result.output_text;
+  return (result.output || [])
+    .flatMap(item => item.content || [])
+    .filter(part => part.type === "output_text" && typeof part.text === "string")
+    .map(part => part.text)
+    .join("\n");
 }
 
 export default async function handler(req, res) {
@@ -39,7 +49,7 @@ Use 0 for an unreadable total. File name: ${fileName}`;
     });
     if (!response.ok) throw new Error(`AI request failed (${response.status})`);
     const result = await response.json();
-    const receipt = parseJson(result.output_text || "");
+    const receipt = parseJson(responseText(result));
     return send(res, 200, { receipt });
   } catch (error) {
     console.error("Receipt analysis failed", error.message);
