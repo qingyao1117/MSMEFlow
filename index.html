@@ -22,6 +22,9 @@
     .dark .text-slate-900 { color: #f8fafc !important; }
     .dark .text-slate-800, .dark .text-slate-700 { color: #cbd5e1 !important; }
     .dark .text-slate-600, .dark .text-slate-500 { color: #94a3b8 !important; }
+    .dark .bg-slate-50, .dark .bg-slate-50\/40, .dark .bg-indigo-50\/50, .dark .bg-emerald-50\/60 { background-color: #111827 !important; }
+    .dark .border-slate-200, .dark .border-slate-100 { border-color: #334155 !important; }
+    .dark .text-slate-400 { color: #94a3b8 !important; }
     @keyframes slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -35,7 +38,7 @@
 
   <div id="appShell" class="hidden min-h-screen bg-slate-50">
     <aside aria-label="Workspace navigation" class="fixed inset-y-0 left-0 z-40 flex w-[72px] flex-col items-center border-r border-slate-800 bg-slate-950 py-5 text-slate-400 shadow-xl">
-      <a href="#overview" title="MSMEFlow overview" aria-label="MSMEFlow overview" class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-400 text-lg font-black text-white shadow-lg">M</a>
+      <a href="#overview" title="MSMEFlow overview" aria-label="MSMEFlow overview" class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white shadow-lg"><img src="assets/msmeflow-mark.svg" alt="MSMEFlow" class="h-full w-full object-cover" /></a>
       <nav class="mt-10 flex flex-col gap-3 text-lg">
         <a href="#overview" data-page-link="overview" title="Overview" aria-label="Overview" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">▦</a>
         <a href="#orders" data-page-link="orders" title="Orders" aria-label="Orders" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">▤</a>
@@ -43,6 +46,8 @@
         <a href="#insights" data-page-link="insights" title="AI insights" aria-label="AI insights" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">◔</a>
         <a href="#network" data-page-link="network" title="Partner network" aria-label="Partner network" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">◎</a>
         <a href="#resources" data-page-link="resources" title="Resource desk" aria-label="Resource desk" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">⌘</a>
+        <a href="#accounting" data-page-link="accounting" title="Accounting book" aria-label="Accounting book" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">⌑</a>
+        <a href="#plans" data-page-link="plans" title="Upgrade plan" aria-label="Upgrade plan" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/40 bg-emerald-400/10 text-emerald-200 transition">↑</a>
         <a href="#settings" data-page-link="settings" title="Settings" aria-label="Settings" class="rail-link flex h-10 w-10 items-center justify-center rounded-xl transition">⚙</a>
       </nav>
       <div class="mt-auto flex flex-col items-center gap-3"><span id="userEmail" title="Signed-in account" class="max-w-[54px] truncate text-[9px] text-slate-500"></span><button onclick="signOut()" title="Sign out" aria-label="Sign out" class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 text-sm font-bold transition hover:bg-white/10 hover:text-white">↪</button></div>
@@ -52,8 +57,7 @@
   <!-- Header -->
   <header id="overview" class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between pb-8 gap-4 border-b border-slate-200">
     <div>
-      <span class="text-xs font-bold tracking-widest text-emerald-600 uppercase">Operations Intelligence</span>
-      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">MSMEFlow <span class="text-slate-400 font-normal">/ Today</span></h1>
+      <div class="flex items-center gap-3"><img src="assets/msmeflow-logo.svg" alt="MSMEFlow — Simplify, Organise, Grow" class="h-11 w-auto max-w-[230px] object-contain object-left" /><div class="hidden sm:block border-l border-slate-200 pl-3"><span class="text-xs font-bold tracking-widest text-emerald-600 uppercase">Business command centre</span><p class="text-xs text-slate-500">Simplify · Organise · Grow</p></div></div>
     </div>
     <div class="flex items-center gap-3 flex-wrap">
       <span id="todayLabel" class="text-xs font-medium text-slate-500"></span>
@@ -78,14 +82,21 @@
         <span id="apiStatus" class="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600"><span class="h-2 w-2 rounded-full bg-slate-400"></span> Connector API checking</span>
       </div>
       <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <button onclick="sendDemoOrder('whatsapp')" class="channel-button rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">◉</span><span class="mt-1 block text-xs font-bold text-emerald-900">WhatsApp</span><span class="mt-0.5 block text-[10px] text-emerald-700">Demo order</span></button>
-        <button onclick="sendDemoOrder('telegram')" class="channel-button rounded-xl border border-sky-100 bg-sky-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">✈</span><span class="mt-1 block text-xs font-bold text-sky-900">Telegram</span><span class="mt-0.5 block text-[10px] text-sky-700">Demo order</span></button>
-        <button onclick="sendDemoOrder('tiktok')" class="channel-button rounded-xl border border-pink-100 bg-pink-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">♪</span><span class="mt-1 block text-xs font-bold text-pink-900">TikTok Shop</span><span class="mt-0.5 block text-[10px] text-pink-700">Demo order</span></button>
-        <button onclick="sendDemoOrder('shopee')" class="channel-button rounded-xl border border-orange-100 bg-orange-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">▣</span><span class="mt-1 block text-xs font-bold text-orange-900">Shopee</span><span class="mt-0.5 block text-[10px] text-orange-700">Demo order</span></button>
-        <button onclick="sendDemoOrder('lazada')" class="channel-button rounded-xl border border-violet-100 bg-violet-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">◇</span><span class="mt-1 block text-xs font-bold text-violet-900">Lazada</span><span class="mt-0.5 block text-[10px] text-violet-700">Demo order</span></button>
-        <button onclick="sendDemoOrder('website')" class="channel-button rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">⌘</span><span class="mt-1 block text-xs font-bold text-slate-900">Website</span><span class="mt-0.5 block text-[10px] text-slate-600">Demo order</span></button>
+        <button onclick="openChannel('whatsapp')" class="channel-button rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">◉</span><span class="mt-1 block text-xs font-bold text-emerald-900">WhatsApp</span><span class="mt-0.5 block text-[10px] text-emerald-700">View orders →</span></button>
+        <button onclick="openChannel('telegram')" class="channel-button rounded-xl border border-sky-100 bg-sky-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">✈</span><span class="mt-1 block text-xs font-bold text-sky-900">Telegram</span><span class="mt-0.5 block text-[10px] text-sky-700">View orders →</span></button>
+        <button onclick="openChannel('tiktok')" class="channel-button rounded-xl border border-pink-100 bg-pink-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">♪</span><span class="mt-1 block text-xs font-bold text-pink-900">TikTok Shop</span><span class="mt-0.5 block text-[10px] text-pink-700">View orders →</span></button>
+        <button onclick="openChannel('shopee')" class="channel-button rounded-xl border border-orange-100 bg-orange-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">▣</span><span class="mt-1 block text-xs font-bold text-orange-900">Shopee</span><span class="mt-0.5 block text-[10px] text-orange-700">View orders →</span></button>
+        <button onclick="openChannel('lazada')" class="channel-button rounded-xl border border-violet-100 bg-violet-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">◇</span><span class="mt-1 block text-xs font-bold text-violet-900">Lazada</span><span class="mt-0.5 block text-[10px] text-violet-700">View orders →</span></button>
+        <button onclick="openChannel('website')" class="channel-button rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">⌘</span><span class="mt-1 block text-xs font-bold text-slate-900">Website</span><span class="mt-0.5 block text-[10px] text-slate-600">View orders →</span></button>
       </div>
       <button onclick="syncTelegramInbox()" class="mt-4 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-100">↻ Sync new Telegram messages into my workspace</button>
+    </section>
+
+    <section id="channels" data-page="channels" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <button onclick="location.hash='overview'" class="text-xs font-bold text-indigo-600">← Back to all channels</button>
+      <div class="mt-4 flex flex-wrap items-start justify-between gap-3"><div><span class="text-[10px] font-bold uppercase tracking-widest text-indigo-600">Channel workspace</span><h2 id="channelTitle" class="mt-1 text-xl font-bold text-slate-900">Channel orders</h2><p id="channelDescription" class="mt-1 text-sm text-slate-500"></p></div><button id="channelDemoButton" onclick="addChannelDemo()" class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Add demo order</button></div>
+      <div id="channelConnectionNote" class="mt-4 rounded-xl border border-sky-100 bg-sky-50 p-3 text-xs text-sky-900"></div>
+      <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400"><tr><th class="p-3">Customer</th><th class="p-3">Order & source</th><th class="p-3">Delivery</th><th class="p-3">Payment</th><th class="p-3 text-right">Total</th></tr></thead><tbody id="channelOrdersBody" class="divide-y divide-slate-100"></tbody></table></div>
     </section>
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,.9fr)]">
@@ -143,22 +154,23 @@
           </div>
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-2">
+        <div class="grid gap-4 xl:grid-cols-2">
           <div class="rounded-xl border border-amber-100 bg-amber-50/40 p-3">
             <div class="mb-2 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-amber-800">Pending orders</h3><span id="pendingOrderBadge" class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">0</span></div>
             <div class="overflow-x-auto"><table class="w-full text-left text-xs">
-              <thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-amber-100"><th class="pb-2">Customer</th><th class="pb-2">Items</th><th class="pb-2">Total</th><th class="pb-2 text-right">Action</th></tr></thead>
+              <thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-amber-100"><th class="pb-2">Customer / source</th><th class="pb-2">Items & delivery</th><th class="pb-2">Payment</th><th class="pb-2 text-right">Action</th></tr></thead>
               <tbody id="pendingOrdersBody" class="divide-y divide-amber-100 font-medium text-slate-700"></tbody>
             </table></div>
           </div>
-          <div class="rounded-xl border border-rose-100 bg-rose-50/40 p-3">
-            <div class="mb-2 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-rose-800">Refunded</h3><span id="refundedOrderBadge" class="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">0</span></div>
+          <div class="rounded-xl border border-emerald-100 bg-emerald-50/40 p-3">
+            <div class="mb-2 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-emerald-800">Completed today</h3><span id="completedOrderBadge" class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">0</span></div>
             <div class="overflow-x-auto"><table class="w-full text-left text-xs">
-              <thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-rose-100"><th class="pb-2">Customer</th><th class="pb-2">Items</th><th class="pb-2">Total</th><th class="pb-2 text-right">Status</th></tr></thead>
-              <tbody id="refundedOrdersBody" class="divide-y divide-rose-100 font-medium text-slate-700"></tbody>
+              <thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-emerald-100"><th class="pb-2">Customer / source</th><th class="pb-2">Items & delivery</th><th class="pb-2">Payment</th><th class="pb-2 text-right">Total</th></tr></thead>
+              <tbody id="completedOrdersBody" class="divide-y divide-emerald-100 font-medium text-slate-700"></tbody>
             </table></div>
           </div>
         </div>
+        <div class="mt-4 rounded-xl border border-rose-100 bg-rose-50/40 p-3"><div class="mb-2 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-wider text-rose-800">Refund history</h3><span id="refundedOrderBadge" class="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">0</span></div><div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead><tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-rose-100"><th class="pb-2">Customer</th><th class="pb-2">Item</th><th class="pb-2">Refund time & reason</th><th class="pb-2 text-right">Amount</th></tr></thead><tbody id="refundedOrdersBody" class="divide-y divide-rose-100 font-medium text-slate-700"></tbody></table></div></div>
       </section>
 
       <!-- Predictive Stock Monitor -->
@@ -167,12 +179,13 @@
           <h2 class="text-base font-bold text-slate-900">Predictive Stock Monitor</h2>
           <span id="stockAlertCount" class="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-600 rounded-md">2 alerts</span>
         </div>
-        <p class="text-xs text-slate-500 mb-4">Projected against today's demand.</p>
+        <p class="text-xs text-slate-500 mb-4">Live estimate calculated from your saved Supabase orders.</p>
 
         <div class="grid grid-cols-[1fr_auto] items-end gap-3">
           <svg id="stockChart" viewBox="0 0 240 120" class="h-32 w-full" role="img" aria-label="Remaining inventory pie chart"></svg>
           <div class="space-y-3 text-right text-xs font-bold"><div><span id="wrapStockLabel" class="block text-emerald-600">76 pcs</span><span class="text-slate-400">Wraps left</span></div><div><span id="cheeseStockLabel" class="block text-amber-600">19 pcs</span><span class="text-slate-400">Cheese left</span></div></div>
         </div>
+        <div id="stockAlerts" class="mt-4 grid gap-2 sm:grid-cols-2"></div>
       </section>
       </div>
 
@@ -199,15 +212,20 @@
         <h3 id="cashflowTitle" class="text-base font-bold text-slate-900 mt-1">No recommendations yet</h3>
         <div id="cashflowSuggestions" class="mt-3 space-y-2 text-xs text-slate-700"></div>
       </section>
+      <section data-page="insights" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Unit economics</span><h3 class="mt-1 text-base font-bold text-slate-900">Revenue, cost & margin by item</h3><div id="unitEconomics" class="mt-4 grid gap-3"></div></section>
+      <section data-page="insights" class="page-section rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6"><span class="text-[10px] font-bold uppercase tracking-widest text-indigo-600">Best seller</span><h3 id="bestSellerTitle" class="mt-1 text-base font-bold text-slate-900">Add orders to find your leader</h3><p id="bestSellerSummary" class="mt-2 text-xs leading-relaxed text-slate-600">Your order history will calculate unit volume, revenue and estimated profit margin here.</p></section>
       <section id="resources" data-page="resources" class="page-section p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
         <span class="text-[10px] font-bold tracking-widest text-sky-700 uppercase">MSME resource desk</span>
-        <h3 class="text-base font-bold text-slate-900 mt-1">Support matched to your next step</h3>
-        <div class="mt-3 grid gap-2 text-xs">
-          <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://smecorp.gov.my/index.php/en/about-sme-corp-malaysia"><strong>Business advisory</strong><span class="block mt-1 text-slate-500">SME Corp. Malaysia programmes and guidance</span></a>
-          <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://www.tekun.gov.my/en/laman-utama-english/"><strong>Working-capital options</strong><span class="block mt-1 text-slate-500">TEKUN Nasional financing information</span></a>
-          <a class="rounded-lg border border-slate-100 p-3 text-slate-700 hover:border-sky-200 hover:bg-sky-50" target="_blank" rel="noreferrer" href="https://www.mdec.my/programmes/business-digitalisation-initiative"><strong>Digital growth</strong><span class="block mt-1 text-slate-500">MDEC Business Digitalisation Initiative</span></a>
+        <h3 class="text-base font-bold text-slate-900 mt-1">Support matched to your next step</h3><p class="mt-1 text-xs text-slate-500">Browse the cards for public programmes and practical guides.</p>
+        <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3 text-xs">
+          <a class="overflow-hidden rounded-xl border border-slate-100 text-slate-700 hover:border-sky-200 hover:shadow-sm" target="_blank" rel="noreferrer" href="https://smecorp.gov.my/index.php/en/about-sme-corp-malaysia"><div class="h-24 bg-gradient-to-br from-indigo-600 to-sky-400 p-4 text-3xl">🏢</div><div class="p-3"><strong>Business advisory</strong><span class="mt-1 block text-slate-500">SME Corp. Malaysia programmes and guidance</span><span class="mt-3 block font-bold text-sky-700">Explore support →</span></div></a>
+          <a class="overflow-hidden rounded-xl border border-slate-100 text-slate-700 hover:border-emerald-200 hover:shadow-sm" target="_blank" rel="noreferrer" href="https://www.tekun.gov.my/en/laman-utama-english/"><div class="h-24 bg-gradient-to-br from-emerald-500 to-teal-300 p-4 text-3xl">💼</div><div class="p-3"><strong>Working-capital options</strong><span class="mt-1 block text-slate-500">TEKUN Nasional financing information</span><span class="mt-3 block font-bold text-emerald-700">Explore funding →</span></div></a>
+          <a class="overflow-hidden rounded-xl border border-slate-100 text-slate-700 hover:border-violet-200 hover:shadow-sm" target="_blank" rel="noreferrer" href="https://www.mdec.my/programmes/business-digitalisation-initiative"><div class="h-24 bg-gradient-to-br from-violet-600 to-fuchsia-400 p-4 text-3xl">📈</div><div class="p-3"><strong>Digital growth</strong><span class="mt-1 block text-slate-500">MDEC Business Digitalisation Initiative</span><span class="mt-3 block font-bold text-violet-700">Explore digitalisation →</span></div></a>
+          <a class="overflow-hidden rounded-xl border border-slate-100 text-slate-700 hover:border-amber-200 hover:shadow-sm" target="_blank" rel="noreferrer" href="https://www.smeinfo.com.my/"><div class="h-24 bg-gradient-to-br from-amber-400 to-orange-400 p-4 text-3xl">🧾</div><div class="p-3"><strong>SME information hub</strong><span class="mt-1 block text-slate-500">Guides, grants and business capability resources</span><span class="mt-3 block font-bold text-amber-700">Browse hub →</span></div></a>
         </div>
       </section>
+      <section id="accounting" data-page="accounting" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><span class="text-[10px] font-bold uppercase tracking-widest text-indigo-600">Monthly accounting book</span><h2 class="mt-1 text-xl font-bold text-slate-900">Auto ledger: debits & credits</h2><p class="mt-2 text-sm text-slate-500">Generated from your saved order and refund records. Confirm the figures with your accountant before filing.</p><div id="accountingSummary" class="mt-5 grid gap-3 sm:grid-cols-3"></div><div class="mt-5 overflow-x-auto rounded-xl border border-slate-100"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400"><tr><th class="p-3">Date</th><th class="p-3">Account</th><th class="p-3">Reference</th><th class="p-3 text-right">Debit</th><th class="p-3 text-right">Credit</th></tr></thead><tbody id="ledgerBody" class="divide-y divide-slate-100"></tbody></table></div></section>
+      <section id="plans" data-page="plans" class="page-section rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm"><span class="text-[10px] font-bold uppercase tracking-widest text-emerald-700">MSMEFlow plans</span><h2 class="mt-1 text-xl font-bold text-slate-900">Choose how your kitchen grows</h2><p class="mt-2 text-sm text-slate-600">Your selected plan is saved to your workspace. Payment collection is not enabled in this prototype.</p><div class="mt-5 grid gap-4 xl:grid-cols-3"><article class="rounded-xl border border-slate-200 bg-white p-4"><h3 class="font-bold text-slate-900">Starter Kitchen</h3><p class="mt-1 text-sm font-semibold text-emerald-700">Free Tier</p><p class="mt-2 text-xs text-slate-500">For new or casual home sellers with fewer than 30 orders/month.</p><ul class="mt-3 space-y-2 text-xs text-slate-600"><li>• Up to 30 manual orders/month</li><li>• Simple product catalogue</li><li>• Manual inventory and revenue/expense logging</li><li>• Single-user access</li></ul><button onclick="choosePlan('Free Tier')" class="mt-4 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700">Choose free</button></article><article class="rounded-xl border-2 border-indigo-500 bg-white p-4 shadow-sm"><span class="rounded-full bg-indigo-100 px-2 py-1 text-[10px] font-bold text-indigo-700">POPULAR</span><h3 class="mt-3 font-bold text-slate-900">Growth Kitchen</h3><p class="mt-1 text-sm font-semibold text-indigo-700">RM 19.90 / month</p><p class="mt-2 text-xs text-slate-500">For consistent home-bakers and meal-prep services processing 30–100 orders/month.</p><ul class="mt-3 space-y-2 text-xs text-slate-600"><li>• Unlimited orders</li><li>• 50 AI chat extraction credits/month</li><li>• Recipe-linked inventory deduction</li><li>• 30 receipt scans/month</li><li>• Best-seller and revenue analytics</li></ul><button onclick="choosePlan('Growth Kitchen')" class="mt-4 w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white">Select Growth</button></article><article class="rounded-xl border border-slate-900 bg-slate-950 p-4 text-white"><h3 class="font-bold">Master Kitchen</h3><p class="mt-1 text-sm font-semibold text-emerald-300">RM 39.90 / month</p><p class="mt-2 text-xs text-slate-300">For high-volume sellers, seasonal vendors and pop-up kitchen teams.</p><ul class="mt-3 space-y-2 text-xs text-slate-200"><li>• Everything in Basic</li><li>• Unlimited AI screenshot parsing</li><li>• Bank-receipt fraud check</li><li>• WhatsApp / Instagram auto-confirmations</li><li>• Low-stock and supplier alerts</li><li>• Up to 3 staff accounts</li></ul><button onclick="choosePlan('Master Kitchen')" class="mt-4 w-full rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-slate-950">Select Master</button></article></div><p id="planStatus" class="mt-4 text-xs font-semibold text-emerald-700"></p></section>
       <section id="settings" data-page="settings" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <span class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Workspace settings</span>
         <h2 class="mt-1 text-lg font-bold text-slate-900">Profile, appearance & security</h2>
@@ -221,8 +239,9 @@
       <section id="freelancers" data-page="freelancers" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <button onclick="location.hash='network'" class="text-xs font-bold text-indigo-600">← Back to partner network</button>
         <span class="mt-4 block text-[10px] font-bold tracking-widest text-indigo-600 uppercase">Freelancer directory</span><h2 class="mt-1 text-xl font-bold text-slate-900">Find a ledger-ready bookkeeper</h2><p class="mt-2 max-w-xl text-sm text-slate-600">This demo page keeps your data private until you choose to share a monthly export with a verified partner.</p>
-        <div class="mt-5 grid gap-3 md:grid-cols-2"><div class="rounded-xl border border-slate-200 p-4"><strong class="text-slate-900">Bookkeeper — F&B focus</strong><p class="mt-1 text-xs text-slate-500">Monthly reconciliation, receipts and cash-flow reporting.</p><button onclick="showToast('Demo request saved. Add a verified partner directory before inviting a real person.')" class="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Request introduction</button></div><div class="rounded-xl border border-slate-200 p-4"><strong class="text-slate-900">Financial analyst — growth planning</strong><p class="mt-1 text-xs text-slate-500">Demand trends, pricing and working-capital planning.</p><button onclick="showToast('Demo request saved. Add a verified partner directory before inviting a real person.')" class="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Request introduction</button></div></div>
+        <div class="mt-5 grid gap-3 md:grid-cols-2"><div class="rounded-xl border border-slate-200 p-4"><strong class="text-slate-900">Bookkeeper — F&B focus</strong><p class="mt-1 text-xs text-slate-500">Monthly reconciliation, receipts and cash-flow reporting.</p><button onclick="openFreelancer('Bookkeeper — F&B focus', 'Monthly reconciliation, receipts and cash-flow reporting')" class="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">View profile & apply</button></div><div class="rounded-xl border border-slate-200 p-4"><strong class="text-slate-900">Financial analyst — growth planning</strong><p class="mt-1 text-xs text-slate-500">Demand trends, pricing and working-capital planning.</p><button onclick="openFreelancer('Financial analyst — growth planning', 'Demand trends, pricing and working-capital planning')" class="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">View profile & apply</button></div></div>
       </section>
+      <section id="freelancer-profile" data-page="freelancer-profile" class="page-section rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><button onclick="location.hash='freelancers'" class="text-xs font-bold text-indigo-600">← Back to directory</button><div class="mt-4 grid gap-6 lg:grid-cols-[1fr_.9fr]"><div><span class="text-[10px] font-bold uppercase tracking-widest text-indigo-600">Verified-profile demo</span><h2 id="freelancerName" class="mt-1 text-xl font-bold text-slate-900">Partner profile</h2><p id="freelancerService" class="mt-2 text-sm leading-relaxed text-slate-600"></p><div class="mt-5 rounded-xl bg-slate-50 p-4 text-xs text-slate-600"><strong class="text-slate-900">How data sharing works</strong><p class="mt-1">An application only records your request. No orders, receipts or cash-flow records are shared until you approve a separate monthly export.</p></div></div><form onsubmit="submitPartnerRequest(event)" class="rounded-xl border border-slate-200 p-4"><h3 class="font-bold text-slate-900">Apply to become a customer</h3><label class="mt-3 block text-xs font-semibold text-slate-600">Your name<input id="partnerContactName" required class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /></label><label class="mt-3 block text-xs font-semibold text-slate-600">Contact email<input id="partnerContactEmail" type="email" required class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" /></label><label class="mt-3 block text-xs font-semibold text-slate-600">What help do you need?<textarea id="partnerNote" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" rows="3" placeholder="E.g. monthly bookkeeping for a home bakery"></textarea></label><button class="mt-4 w-full rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Submit private request</button><p id="partnerRequestStatus" class="mt-3 text-xs"></p></form></div></section>
     </div>
     </div>
   </main>
@@ -236,7 +255,8 @@
     // Supabase Project Credentials
     const SUPABASE_URL = "https://exsnyagejvcpjbbliodw.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_nOz5KwPKdPvomY5qY96L1g_0ewx1pb0";
-    const API_BASE = "http://127.0.0.1:8000/api";
+    // Local Telegram bridge. It runs on the same computer as the browser.
+    const API_BASE = "http://127.0.0.1:8001/api";
     const AUTH_REDIRECT_URL = window.location.origin;
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -250,6 +270,8 @@
     let savingExtracted = false;
     let currentUser = null;
     let signUpMode = false;
+    let selectedChannel = "telegram";
+    let selectedFreelancer = { name: "", service: "" };
 
     function toggleAuthMode() {
       signUpMode = !signUpMode;
@@ -315,11 +337,27 @@
     }
 
     function routeWorkspace() {
-      const allowed = ["overview", "orders", "receipts", "insights", "network", "resources", "settings", "freelancers"];
+      const allowed = ["overview", "channels", "orders", "receipts", "insights", "network", "resources", "accounting", "plans", "settings", "freelancers", "freelancer-profile"];
       const page = allowed.includes(location.hash.slice(1)) ? location.hash.slice(1) : "overview";
       document.querySelectorAll("[data-page]").forEach(section => { section.hidden = section.dataset.page !== page; });
       document.querySelectorAll("[data-page-link]").forEach(link => link.classList.toggle("active", link.dataset.pageLink === page));
+      if (page === "channels") renderChannelInbox();
+      if (page === "accounting") renderAccountingBook();
       window.scrollTo(0, 0);
+    }
+
+    function openChannel(channel) { selectedChannel = channel; location.hash = "channels"; }
+    function addChannelDemo() { sendDemoOrder(selectedChannel); }
+    function channelLabel(channel) { return ({ whatsapp: "WhatsApp", telegram: "Telegram", tiktok: "TikTok Shop", shopee: "Shopee", lazada: "Lazada", website: "Website" })[channel] || "Channel"; }
+    function renderChannelInbox() {
+      const label = channelLabel(selectedChannel);
+      const liveTelegram = selectedChannel === "telegram";
+      document.getElementById("channelTitle").innerText = label + " order inbox";
+      document.getElementById("channelDescription").innerText = `Orders are filtered from your private Supabase workspace by their ${label} source.`;
+      document.getElementById("channelDemoButton").innerText = `Add ${label} demo order`;
+      document.getElementById("channelConnectionNote").innerText = liveTelegram ? "Telegram demo bridge: start the local connector, message the bot, then use Sync new Telegram messages on Overview. New saved messages appear here." : `${label} is in guided demo mode. Add a demo order to see the channel data flow; a verified provider webhook is needed for live marketplace messages.`;
+      const rows = allOrders.filter(order => order.channel === selectedChannel);
+      document.getElementById("channelOrdersBody").innerHTML = rows.length ? rows.map(order => `<tr><td class="p-3 font-semibold text-slate-900">${order.customer || "Guest"}</td><td class="p-3 text-slate-600">${order.quantity || 1} ${order.product || "item"}<span class="mt-1 block text-[10px] uppercase tracking-wide text-slate-400">${label}</span></td><td class="p-3 text-slate-600">${formatDelivery(order)}</td><td class="p-3"><span class="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-700">${order.payment_status || order.status_tag || "Pending"}</span></td><td class="p-3 text-right font-bold">${formatCurrency(order.total)}</td></tr>`).join("") : `<tr><td colspan="5" class="p-8 text-center text-slate-400">No ${label} orders yet. Use the demo button above to add one.</td></tr>`;
     }
 
     async function saveProfile(event) {
@@ -329,6 +367,14 @@
       if (error) return showToast(error.message);
       await supabaseClient.auth.updateUser({ data: { business_name: businessName } });
       showToast("Business profile saved");
+    }
+
+    async function choosePlan(plan) {
+      const { error } = await supabaseClient.from("profiles").upsert({ id: currentUser.id, email: currentUser.email, subscription_plan: plan, updated_at: new Date().toISOString() });
+      if (error) return showToast(error.message);
+      await supabaseClient.auth.updateUser({ data: { subscription_plan: plan } });
+      document.getElementById("planStatus").innerText = `${plan} selected for this workspace. Payment is intentionally not collected in this prototype.`;
+      showToast(`${plan} saved to your profile`);
     }
 
     function toggleTheme() {
@@ -373,30 +419,33 @@
       return `RM ${parseFloat(num || 0).toFixed(2)}`;
     }
 
-    function orderRow(order, refunded) {
+    function formatDelivery(order) { return order.delivery_at ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.delivery_at)) : (order.delivery || "Delivery time not set"); }
+    function orderRow(order, type) {
       const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
-      const action = refunded
-        ? '<span class="rounded-full bg-rose-100 px-2 py-1 text-[10px] font-bold text-rose-700">Refunded</span>'
-        : `<button onclick="refundOrder('${order.id}')" class="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-rose-50">Refund</button>`;
-      return `<tr class="hover:bg-white/70 transition-colors"><td class="py-2.5 font-semibold text-slate-900">${order.customer || 'Guest Customer'}</td><td class="py-2.5 text-slate-600">${itemsDesc}</td><td class="py-2.5 font-bold text-slate-800">${formatCurrency(order.total)}</td><td class="py-2.5 text-right">${action}</td></tr>`;
+      if (type === "refund") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}</td><td class="py-2.5 text-slate-600">${itemsDesc}</td><td class="py-2.5 text-slate-600">${order.refunded_at ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.refunded_at)) : "Today"}<span class="block text-[10px] text-rose-600">${order.refund_reason || "Reason not recorded"}</span></td><td class="py-2.5 text-right font-bold">${formatCurrency(order.total)}</td></tr>`;
+      if (type === "completed") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-emerald-700">${order.payment_status || "Paid"}</td><td class="py-2.5 text-right font-bold">${formatCurrency(order.total)}</td></tr>`;
+      return `<tr class="hover:bg-white/70 transition-colors"><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-amber-700">${order.payment_status || "Pending"}<span class="block font-bold text-slate-800">${formatCurrency(order.total)}</span></td><td class="py-2.5 text-right whitespace-nowrap"><button onclick="completeOrder('${order.id}')" class="mr-1 rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white">Complete</button><button onclick="refundOrder('${order.id}')" class="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-bold text-rose-600">Refund</button></td></tr>`;
     }
 
     function renderOrders() {
-      const pending = allOrders.filter(order => order.status_tag !== 'Refunded');
+      const pending = allOrders.filter(order => !["Refunded", "Completed", "Confirmed", "Fulfilled"].includes(order.status_tag));
+      const completed = allOrders.filter(order => ["Completed", "Confirmed", "Fulfilled"].includes(order.status_tag));
       const refunded = allOrders.filter(order => order.status_tag === 'Refunded');
       document.getElementById("pendingOrdersBody").innerHTML = pending.length
-        ? pending.map(order => orderRow(order, false)).join("")
+        ? pending.map(order => orderRow(order, "pending")).join("")
         : '<tr><td colspan="4" class="py-4 text-center text-slate-400">No pending orders</td></tr>';
+      document.getElementById("completedOrdersBody").innerHTML = completed.length ? completed.map(order => orderRow(order, "completed")).join("") : '<tr><td colspan="4" class="py-4 text-center text-slate-400">No completed orders today</td></tr>';
       document.getElementById("refundedOrdersBody").innerHTML = refunded.length
-        ? refunded.map(order => orderRow(order, true)).join("")
+        ? refunded.map(order => orderRow(order, "refund")).join("")
         : '<tr><td colspan="4" class="py-4 text-center text-slate-400">No refunds recorded</td></tr>';
       document.getElementById("pendingOrderBadge").innerText = pending.length;
+      document.getElementById("completedOrderBadge").innerText = completed.length;
       document.getElementById("refundedOrderBadge").innerText = refunded.length;
     }
 
     // Recalculate totals
     function updateMetrics() {
-      const pendingCount = allOrders.filter(order => !["Confirmed", "Fulfilled", "Refunded"].includes(order.status_tag)).length;
+      const pendingCount = allOrders.filter(order => !["Completed", "Confirmed", "Fulfilled", "Refunded"].includes(order.status_tag)).length;
       document.getElementById("orderCount").innerText = `${allOrders.length} orders today · ${pendingCount} awaiting action`;
 
       let totalInflow = 0;
@@ -407,7 +456,7 @@
         const val = parseFloat(o.total || 0);
         if (o.status_tag === 'Refunded') {
           refunds += val;
-        } else if (o.status_tag === 'Confirmed' || o.status_tag === 'Fulfilled') {
+        } else if (["Completed", "Confirmed", "Fulfilled"].includes(o.status_tag)) {
           totalInflow += val;
         } else {
           totalPending += val;
@@ -420,6 +469,8 @@
       updateStockProjection();
       updateCashFlowChart(totalInflow, totalPending, refunds);
       updateAnalysisTrend(refunds, totalPending);
+      renderUnitEconomics();
+      if (location.hash === "#channels") renderChannelInbox();
     }
 
     // Load only the signed-in business's orders; RLS enforces the same boundary server-side.
@@ -461,7 +512,8 @@
           website: ["Website guest", "Brownie Box", 1, "None", 15]
         };
         const [customer, product, quantity, addon, total] = samples[channel];
-        const saved = await saveOrder({ id: `DEMO-${Date.now()}`, customer, product, quantity, addon, total, channel, status_tag: "Pending Payment" });
+        const deliveryAt = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+        const saved = await saveOrder({ id: `DEMO-${Date.now()}`, customer, product, quantity, addon, total, channel, delivery: "Scheduled delivery", delivery_at: deliveryAt, payment_status: "Pending", status_tag: "Pending Payment" });
         allOrders.unshift(saved);
         renderOrders();
         updateMetrics();
@@ -660,11 +712,24 @@
       document.getElementById("stockChart").innerHTML = `<circle cx="72" cy="60" r="38" fill="none" stroke="#e2e8f0" stroke-width="18"/><circle cx="72" cy="60" r="38" fill="none" stroke="#10b981" stroke-width="18" stroke-dasharray="${wrapAngle / 360 * 239} 239" transform="rotate(-90 72 60)"/><circle cx="72" cy="60" r="38" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="${(360 - wrapAngle) / 360 * 239} 239" stroke-dashoffset="-${wrapAngle / 360 * 239}" transform="rotate(-90 72 60)"/><text x="72" y="57" text-anchor="middle" fill="#0f172a" font-size="16" font-weight="700">${totalRemaining}</text><text x="72" y="72" text-anchor="middle" fill="#64748b" font-size="9">units left</text><text x="130" y="48" fill="#059669" font-size="11">● Wraps ${Math.round(wrapsRemaining / totalRemaining * 100)}%</text><text x="130" y="72" fill="#d97706" font-size="11">● Cheese ${Math.round(cheeseRemaining / totalRemaining * 100)}%</text>`;
       const alerts = Number(wrapsRemaining < 25) + Number(cheeseRemaining < 8);
       document.getElementById("stockAlertCount").innerText = alerts ? `${alerts} alert${alerts > 1 ? "s" : ""}` : "Stock healthy";
+      const stockCards = [["Wraps", wrapsRemaining, 25, "border-emerald-100 bg-emerald-50/50 text-emerald-700"], ["Cheese portions", cheeseRemaining, 8, "border-amber-100 bg-amber-50/50 text-amber-700"]];
+      document.getElementById("stockAlerts").innerHTML = stockCards.map(([name, remaining, threshold, style]) => `<div class="rounded-lg border p-3 text-xs ${style}"><span class="font-bold text-slate-900">${name}</span><span class="float-right font-bold">${remaining} units</span><p class="mt-1 text-slate-500">${remaining < threshold ? `Low-stock alert: reorder before the next ${threshold - remaining} orders.` : "Healthy level based on current order demand."}</p></div>`).join("");
+    }
+
+    async function completeOrder(id) {
+      try {
+        const { data: updated, error } = await supabaseClient.from("orders").update({ status_tag: "Completed", payment_status: "Paid", completed_at: new Date().toISOString() }).eq("id", id).eq("owner_id", currentUser.id).select().single();
+        if (error) throw error;
+        allOrders = allOrders.map(order => order.id === id ? updated : order);
+        renderOrders(); updateMetrics(); showToast("Order completed and payment marked as paid");
+      } catch (error) { showToast(error.message || "Could not complete the order"); }
     }
 
     async function refundOrder(id) {
+      const reason = window.prompt("Reason for this refund?");
+      if (reason === null) return;
       try {
-        const { data: updated, error } = await supabaseClient.from("orders").update({ status_tag: "Refunded", refunded_at: new Date().toISOString() }).eq("id", id).eq("owner_id", currentUser.id).select().single();
+        const { data: updated, error } = await supabaseClient.from("orders").update({ status_tag: "Refunded", payment_status: "Refunded", refund_reason: reason.trim() || "Not specified", refunded_at: new Date().toISOString() }).eq("id", id).eq("owner_id", currentUser.id).select().single();
         if (error) throw error;
         allOrders = allOrders.map(order => order.id === id ? updated : order);
       } catch (error) {
@@ -709,6 +774,24 @@
         : "<div>• Use your best-selling item to pitch office lunch packages.</div><div>• Ask repeat customers for weekly pre-orders to stabilize cash flow.</div>";
     }
 
+    function renderUnitEconomics() {
+      const items = {};
+      allOrders.filter(order => order.status_tag !== "Refunded").forEach(order => { const key = order.product || "Other"; const entry = items[key] || { units: 0, revenue: 0 }; entry.units += Number(order.quantity || 1); entry.revenue += Number(order.total || 0); items[key] = entry; });
+      const rows = Object.entries(items).sort((a, b) => b[1].revenue - a[1].revenue);
+      document.getElementById("unitEconomics").innerHTML = rows.length ? rows.map(([name, values]) => { const cost = values.revenue * (/(wrap|brownie)/i.test(name) ? .42 : .5); const margin = values.revenue ? ((values.revenue - cost) / values.revenue * 100) : 0; return `<div class="rounded-xl bg-slate-50 p-3 text-xs"><div class="flex justify-between"><strong class="text-slate-900">${name}</strong><span class="font-bold text-emerald-700">${margin.toFixed(0)}% margin</span></div><div class="mt-2 flex justify-between text-slate-500"><span>${values.units} units sold</span><span>Revenue ${formatCurrency(values.revenue)}</span><span>Est. cost ${formatCurrency(cost)}</span></div></div>`; }).join("") : '<p class="text-xs text-slate-500">No completed sales yet. Complete an order to calculate item margins.</p>';
+      const best = rows[0];
+      document.getElementById("bestSellerTitle").innerText = best ? `${best[0]} is your best seller` : "Add orders to find your leader";
+      document.getElementById("bestSellerSummary").innerText = best ? `${best[1].units} units recorded, generating ${formatCurrency(best[1].revenue)} before refunds. Use it for bundles and repeat-order campaigns.` : "Your order history will calculate unit volume, revenue and estimated profit margin here.";
+    }
+
+    function renderAccountingBook() {
+      const month = new Intl.DateTimeFormat("en-MY", { month: "long", year: "numeric" }).format(new Date());
+      let credits = 0, debits = 0;
+      const entries = allOrders.map(order => { const amount = Number(order.total || 0); const refund = order.status_tag === "Refunded"; const completed = ["Completed", "Confirmed", "Fulfilled"].includes(order.status_tag); if (refund) debits += amount; else if (completed) credits += amount; return `<tr><td class="p-3 text-slate-500">${new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short" }).format(new Date(order.created_at || Date.now()))}</td><td class="p-3 font-medium text-slate-900">${refund ? "Sales returns" : completed ? "Sales revenue" : "Accounts receivable"}</td><td class="p-3 text-slate-600">${order.product || "Order"} · ${channelLabel(order.channel)}</td><td class="p-3 text-right text-rose-600">${refund ? formatCurrency(amount) : "—"}</td><td class="p-3 text-right text-emerald-700">${completed ? formatCurrency(amount) : "—"}</td></tr>`; });
+      document.getElementById("accountingSummary").innerHTML = `<div class="rounded-xl bg-slate-50 p-4"><span class="text-xs text-slate-500">Period</span><strong class="mt-1 block text-slate-900">${month}</strong></div><div class="rounded-xl bg-emerald-50 p-4"><span class="text-xs text-emerald-700">Credits: sales revenue</span><strong class="mt-1 block text-emerald-800">${formatCurrency(credits)}</strong></div><div class="rounded-xl bg-rose-50 p-4"><span class="text-xs text-rose-700">Debits: refunds</span><strong class="mt-1 block text-rose-800">${formatCurrency(debits)}</strong></div>`;
+      document.getElementById("ledgerBody").innerHTML = entries.length ? entries.join("") : '<tr><td colspan="5" class="p-8 text-center text-slate-400">No ledger entries yet.</td></tr>';
+    }
+
     let toastTimer;
     function showToast(message) {
       const toast = document.getElementById("toast");
@@ -725,6 +808,26 @@
 
     function requestPartnerMatch() {
       location.hash = "freelancers";
+    }
+
+    function openFreelancer(name, service) {
+      selectedFreelancer = { name, service };
+      document.getElementById("freelancerName").innerText = name;
+      document.getElementById("freelancerService").innerText = service;
+      document.getElementById("partnerContactName").value = currentUser?.user_metadata?.business_name || "";
+      document.getElementById("partnerContactEmail").value = currentUser?.email || "";
+      location.hash = "freelancer-profile";
+    }
+
+    async function submitPartnerRequest(event) {
+      event.preventDefault();
+      const status = document.getElementById("partnerRequestStatus");
+      const record = { owner_id: currentUser.id, partner_name: selectedFreelancer.name, service: selectedFreelancer.service, contact_name: document.getElementById("partnerContactName").value.trim(), contact_email: document.getElementById("partnerContactEmail").value.trim(), note: document.getElementById("partnerNote").value.trim() };
+      const { error } = await supabaseClient.from("partner_requests").insert(record);
+      if (error) { status.innerText = error.message; status.className = "mt-3 text-xs text-rose-600"; return; }
+      status.innerText = "Request saved privately. A real partner must accept it before any data is shared.";
+      status.className = "mt-3 text-xs text-emerald-700";
+      event.target.reset();
     }
 
     // Insert a demo order directly into Supabase for instant testing
