@@ -401,7 +401,7 @@
 
     async function saveOrder(order) {
       if (!currentUser) throw new Error("Sign in before saving an order");
-      const record = { ...order, owner_id: currentUser.id, total: Number(order.total || 0) };
+      const record = { ...order, owner_id: currentUser.id, total: parseMoney(order.total) };
       const { data, error } = await supabaseClient.from("orders").upsert(record).select().single();
       if (error) throw error;
       await loadInventory();
@@ -423,12 +423,23 @@
       return `RM ${parseFloat(num || 0).toFixed(2)}`;
     }
 
-    function formatDelivery(order) { return order.delivery_at ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.delivery_at)) : (order.delivery || "Delivery time not set"); }
+    function parseMoney(value) {
+      if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+      const normalised = String(value ?? "").replace(/[^0-9.-]/g, "");
+      const amount = Number(normalised);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function isExpenseOrder(order) { return order.delivery === "Expense record" || /expense/i.test(order.payment_status || ""); }
+    function displayOrderTotal(order) { const amount = parseMoney(order.total); return isExpenseOrder(order) && amount === 0 ? "Amount needs review" : formatCurrency(amount); }
+
+    function formatDelivery(order) { if (order.delivery_at) return new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.delivery_at)); if (isExpenseOrder(order)) return "Expense record"; return /^(unspecified|standard)$/i.test(order.delivery || "") ? "Delivery time not set" : (order.delivery || "Delivery time not set"); }
     function orderRow(order, type) {
       const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
-      if (type === "refund") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}</td><td class="py-2.5 text-slate-600">${itemsDesc}</td><td class="py-2.5 text-slate-600">${order.refunded_at ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.refunded_at)) : "Today"}<span class="block text-[10px] text-rose-600">${order.refund_reason || "Reason not recorded"}</span></td><td class="py-2.5 text-right font-bold">${formatCurrency(order.total)}</td></tr>`;
-      if (type === "completed") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-emerald-700">${order.payment_status || "Paid"}</td><td class="py-2.5 text-right font-bold">${formatCurrency(order.total)}</td></tr>`;
-      return `<tr class="hover:bg-white/70 transition-colors"><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-amber-700">${order.payment_status || "Pending"}<span class="block font-bold text-slate-800">${formatCurrency(order.total)}</span></td><td class="py-2.5 text-right whitespace-nowrap"><button onclick="completeOrder('${order.id}')" class="mr-1 rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white">Complete</button><button onclick="refundOrder('${order.id}')" class="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-bold text-rose-600">Refund</button></td></tr>`;
+      if (type === "refund") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}</td><td class="py-2.5 text-slate-600">${itemsDesc}</td><td class="py-2.5 text-slate-600">${order.refunded_at ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(order.refunded_at)) : "Today"}<span class="block text-[10px] text-rose-600">${order.refund_reason || "Reason not recorded"}</span></td><td class="py-2.5 text-right font-bold">${displayOrderTotal(order)}</td></tr>`;
+      if (type === "completed") return `<tr><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-emerald-700">${order.payment_status || "Paid"}</td><td class="py-2.5 text-right font-bold">${displayOrderTotal(order)}</td></tr>`;
+      const utilityAction = isExpenseOrder(order) ? `<button onclick="setOrderAmount('${order.id}')" class="mr-1 rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-bold text-amber-700">Set amount</button>` : `<button onclick="setDeliveryTime('${order.id}')" class="mr-1 rounded-lg border border-sky-200 bg-white px-2 py-1 text-[10px] font-bold text-sky-700">Set time</button>`;
+      return `<tr class="hover:bg-white/70 transition-colors"><td class="py-2.5 font-semibold text-slate-900">${order.customer || "Guest"}<span class="block text-[10px] uppercase text-slate-400">${channelLabel(order.channel)}</span></td><td class="py-2.5 text-slate-600">${itemsDesc}<span class="block text-[10px] text-slate-400">${formatDelivery(order)}</span></td><td class="py-2.5 text-amber-700">${order.payment_status || "Pending"}<span class="block font-bold text-slate-800">${displayOrderTotal(order)}</span></td><td class="py-2.5 text-right whitespace-nowrap">${utilityAction}<button onclick="completeOrder('${order.id}')" class="mr-1 rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white">Complete</button><button onclick="refundOrder('${order.id}')" class="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-bold text-rose-600">Refund</button></td></tr>`;
     }
 
     function renderOrders() {
@@ -455,11 +466,14 @@
       let totalInflow = 0;
       let totalPending = 0;
       let refunds = 0;
+      let expenses = 0;
 
       allOrders.forEach(o => {
         const val = parseFloat(o.total || 0);
         if (o.status_tag === 'Refunded') {
           refunds += val;
+        } else if (isExpenseOrder(o)) {
+          expenses += val;
         } else if (["Completed", "Confirmed", "Fulfilled"].includes(o.status_tag)) {
           totalInflow += val;
         } else {
@@ -469,10 +483,10 @@
 
       document.getElementById("inflowTotal").innerText = formatCurrency(totalInflow);
       document.getElementById("pendingTotal").innerText = formatCurrency(totalPending);
-      document.getElementById("outflowTotal").innerText = formatCurrency(83 + refunds);
+      document.getElementById("outflowTotal").innerText = formatCurrency(expenses + refunds);
       updateStockProjection();
-      updateCashFlowChart(totalInflow, totalPending, refunds);
-      updateAnalysisTrend(refunds, totalPending);
+      updateCashFlowChart(totalInflow, totalPending, expenses + refunds);
+      updateAnalysisTrend(expenses + refunds, totalPending);
       renderUnitEconomics();
       if (location.hash === "#channels") renderChannelInbox();
     }
@@ -640,8 +654,9 @@
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || "Receipt analysis failed");
         const receipt = payload.receipt;
-        extractedOrder = { id: "REC-" + Date.now(), customer: receipt.merchant || "Receipt expense", product: receipt.summary || receipt.category || "Receipt expense", quantity: 1, addon: `${receipt.category || "other"} · ${receipt.receipt_date || "Unknown date"}`, total: Number(receipt.total || 0), delivery: "Expense record", channel: "receipt", payment_status: "Recorded expense", status_tag: "Pending Payment", raw_text: "Receipt: " + receiptName };
-        document.getElementById("receiptResult").innerHTML = `<strong>Detected:</strong> ${receipt.merchant || "Unknown merchant"} · ${formatCurrency(receipt.total)} · ${receipt.category || "other"}<span class="block mt-1 text-emerald-700">${receipt.summary || "Receipt analyzed"} (${receipt.confidence || "medium"} confidence)</span>`;
+        const receiptTotal = parseMoney(receipt.total ?? receipt.total_amount ?? receipt.grand_total ?? receipt.amount);
+        extractedOrder = { id: "REC-" + Date.now(), customer: receipt.merchant || "Receipt expense", product: receipt.summary || receipt.category || "Receipt expense", quantity: 1, addon: `${receipt.category || "other"} · ${receipt.receipt_date || "Unknown date"}`, total: receiptTotal, delivery: "Expense record", channel: "receipt", payment_status: receiptTotal ? "Recorded expense" : "Amount needs review", status_tag: "Pending Payment", raw_text: "Receipt: " + receiptName };
+        document.getElementById("receiptResult").innerHTML = `<strong>Detected:</strong> ${receipt.merchant || "Unknown merchant"} · ${receiptTotal ? formatCurrency(receiptTotal) : "amount needs review"} · ${receipt.category || "other"}<span class="block mt-1 text-emerald-700">${receipt.summary || "Receipt analyzed"} (${receipt.confidence || "medium"} confidence)</span>`;
         document.getElementById("receiptResult").classList.remove("hidden");
         document.getElementById("extractionMode").innerText = "Analysis ready — save once to the ledger";
         document.getElementById("addOrderButton").disabled = false;
@@ -741,6 +756,32 @@
       } catch (error) { showToast(error.message || "Could not complete the order"); }
     }
 
+    async function setDeliveryTime(id) {
+      const value = window.prompt("Delivery date and time (for example: 2026-09-13T15:30)");
+      if (!value) return;
+      const deliveryAt = new Date(value);
+      if (Number.isNaN(deliveryAt.getTime())) return showToast("Use a valid date and time, for example 2026-09-13T15:30");
+      try {
+        const { data: updated, error } = await supabaseClient.from("orders").update({ delivery_at: deliveryAt.toISOString(), delivery: "Scheduled delivery" }).eq("id", id).eq("owner_id", currentUser.id).select().single();
+        if (error) throw error;
+        allOrders = allOrders.map(order => order.id === id ? updated : order);
+        renderOrders(); updateMetrics(); showToast("Delivery date and time saved");
+      } catch (error) { showToast(error.message || "Could not save delivery time"); }
+    }
+
+    async function setOrderAmount(id) {
+      const value = window.prompt("Receipt amount in RM", "");
+      if (value === null) return;
+      const amount = parseMoney(value);
+      if (amount <= 0) return showToast("Enter a receipt amount greater than RM 0");
+      try {
+        const { data: updated, error } = await supabaseClient.from("orders").update({ total: amount, payment_status: "Recorded expense" }).eq("id", id).eq("owner_id", currentUser.id).select().single();
+        if (error) throw error;
+        allOrders = allOrders.map(order => order.id === id ? updated : order);
+        renderOrders(); updateMetrics(); showToast("Receipt amount recorded in cash flow");
+      } catch (error) { showToast(error.message || "Could not save receipt amount"); }
+    }
+
     async function refundOrder(id) {
       const reason = window.prompt("Reason for this refund?");
       if (reason === null) return;
@@ -757,8 +798,8 @@
       showToast("Refund recorded in cash flow");
     }
 
-    function updateCashFlowChart(inflow, pending, refunds) {
-      const values = [inflow, pending, 83 + refunds];
+    function updateCashFlowChart(inflow, pending, outflow) {
+      const values = [inflow, pending, outflow];
       const labels = ["Received", "Pending", "Outflow"];
       const colors = ["#34d399", "#fbbf24", "#fb7185"];
       const max = Math.max(1, ...values);
@@ -803,8 +844,8 @@
     function renderAccountingBook() {
       const month = new Intl.DateTimeFormat("en-MY", { month: "long", year: "numeric" }).format(new Date());
       let credits = 0, debits = 0;
-      const entries = allOrders.map(order => { const amount = Number(order.total || 0); const refund = order.status_tag === "Refunded"; const completed = ["Completed", "Confirmed", "Fulfilled"].includes(order.status_tag); if (refund) debits += amount; else if (completed) credits += amount; return `<tr><td class="p-3 text-slate-500">${new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short" }).format(new Date(order.created_at || Date.now()))}</td><td class="p-3 font-medium text-slate-900">${refund ? "Sales returns" : completed ? "Sales revenue" : "Accounts receivable"}</td><td class="p-3 text-slate-600">${order.product || "Order"} · ${channelLabel(order.channel)}</td><td class="p-3 text-right text-rose-600">${refund ? formatCurrency(amount) : "—"}</td><td class="p-3 text-right text-emerald-700">${completed ? formatCurrency(amount) : "—"}</td></tr>`; });
-      document.getElementById("accountingSummary").innerHTML = `<div class="rounded-xl bg-slate-50 p-4"><span class="text-xs text-slate-500">Period</span><strong class="mt-1 block text-slate-900">${month}</strong></div><div class="rounded-xl bg-emerald-50 p-4"><span class="text-xs text-emerald-700">Credits: sales revenue</span><strong class="mt-1 block text-emerald-800">${formatCurrency(credits)}</strong></div><div class="rounded-xl bg-rose-50 p-4"><span class="text-xs text-rose-700">Debits: refunds</span><strong class="mt-1 block text-rose-800">${formatCurrency(debits)}</strong></div>`;
+      const entries = allOrders.map(order => { const amount = parseMoney(order.total); const refund = order.status_tag === "Refunded"; const expense = isExpenseOrder(order); const completed = ["Completed", "Confirmed", "Fulfilled"].includes(order.status_tag); if (refund || expense) debits += amount; else if (completed) credits += amount; return `<tr><td class="p-3 text-slate-500">${new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short" }).format(new Date(order.created_at || Date.now()))}</td><td class="p-3 font-medium text-slate-900">${refund ? "Sales returns" : expense ? "Kitchen supplies" : completed ? "Sales revenue" : "Accounts receivable"}</td><td class="p-3 text-slate-600">${order.product || "Order"} · ${channelLabel(order.channel)}</td><td class="p-3 text-right text-rose-600">${refund || expense ? (amount ? formatCurrency(amount) : "Review amount") : "—"}</td><td class="p-3 text-right text-emerald-700">${completed && !expense ? formatCurrency(amount) : "—"}</td></tr>`; });
+      document.getElementById("accountingSummary").innerHTML = `<div class="rounded-xl bg-slate-50 p-4"><span class="text-xs text-slate-500">Period</span><strong class="mt-1 block text-slate-900">${month}</strong></div><div class="rounded-xl bg-emerald-50 p-4"><span class="text-xs text-emerald-700">Credits: sales revenue</span><strong class="mt-1 block text-emerald-800">${formatCurrency(credits)}</strong></div><div class="rounded-xl bg-rose-50 p-4"><span class="text-xs text-rose-700">Debits: expenses & refunds</span><strong class="mt-1 block text-rose-800">${formatCurrency(debits)}</strong></div>`;
       document.getElementById("ledgerBody").innerHTML = entries.length ? entries.join("") : '<tr><td colspan="5" class="p-8 text-center text-slate-400">No ledger entries yet.</td></tr>';
     }
 
