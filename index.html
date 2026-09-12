@@ -257,7 +257,7 @@
         : await supabaseClient.auth.signInWithPassword({ email, password });
       button.disabled = false;
       button.innerText = signUpMode ? "Create account" : "Sign in";
-      if (result.error) { message.innerText = result.error.message; message.className = "mt-3 text-xs text-rose-600"; document.getElementById("resendConfirmation").classList.toggle("hidden", /confirm|registered/i.test(result.error.message)); return; }
+      if (result.error) { message.innerText = result.error.message; message.className = "mt-3 text-xs text-rose-600"; document.getElementById("resendConfirmation").classList.toggle("hidden", !/confirm|registered/i.test(result.error.message)); return; }
       if (signUpMode && !result.data.session) { message.innerText = "Account created. Check your email to confirm it, then sign in."; message.className = "mt-3 text-xs text-emerald-600"; document.getElementById("resendConfirmation").classList.remove("hidden"); return; }
       await openWorkspace(result.data.user || result.data.session?.user);
     }
@@ -652,6 +652,7 @@
   </script>
 </body>
 </html>
+
 
 
 
