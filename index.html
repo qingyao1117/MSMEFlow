@@ -1,47 +1,341 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSMEFlow — AI Operations Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSMEFlow - Operations Intelligence</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},colors:{ink:'#17212b',mint:'#1ecb9b'}}}}</script>
+  <!-- Supabase JS Client v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body{background:#f6f8fb;color:#17212b}.panel{background:#fff;border:1px solid #e7edf3;border-radius:18px;box-shadow:0 8px 30px rgba(24,39,75,.05)}
-    .scan{background:linear-gradient(90deg,#edf2f7 25%,#f8fafc 37%,#edf2f7 63%);background-size:400% 100%;animation:scan 1.4s ease infinite}@keyframes scan{0%{background-position:100% 0}100%{background-position:0 0}}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
   </style>
 </head>
-<body class="min-h-screen">
-  <main class="max-w-[1600px] mx-auto p-5 lg:p-8">
-    <header class="flex flex-wrap items-center justify-between gap-4 mb-7"><div><p class="text-xs font-bold tracking-[.2em] text-mint uppercase">Operations intelligence</p><h1 class="text-3xl font-extrabold">MSMEFlow <span class="text-slate-400 font-medium">/ Today</span></h1></div><div class="flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> WhatsApp bridge live</div></header>
-    <section class="grid grid-cols-1 xl:grid-cols-[1.15fr_1.35fr_1fr] gap-5">
-      <div class="space-y-5">
-        <div class="panel p-5"><div class="flex justify-between items-start"><div><h2 class="font-bold text-lg">AI Ingest Playground</h2><p class="text-sm text-slate-500">Turn messy messages into actions.</p></div><span id="ingestState" class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-500 rounded-full">READY</span></div>
-          <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl mt-5"><button data-mode="whatsapp" class="mode active rounded-lg py-2 text-sm font-semibold bg-white shadow-sm">WhatsApp</button><button data-mode="ocr" class="mode rounded-lg py-2 text-sm font-semibold text-slate-500">Receipt OCR</button></div>
-          <div class="flex flex-wrap gap-2 my-4"><button class="prompt px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700" data-text="Hi, Aisha here. I need 12 ayam wraps with cheese, please.">Lunch order</button><button class="prompt px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700" data-text="Can I get 6 chicken wraps and 3 cheese add-ons?">Quick reorder</button><button class="prompt px-3 py-1.5 rounded-full text-xs font-semibold bg-violet-50 text-violet-700" data-text="Order for Farid: 20 wraps, cheese on all of them">Bulk order</button></div>
-          <textarea id="rawText" class="w-full h-28 rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-mint/40" placeholder="Paste a WhatsApp order or test a receipt..."></textarea><button id="parseBtn" class="mt-3 w-full rounded-xl bg-ink py-3 text-sm font-bold text-white hover:bg-slate-700">Extract order entities</button>
-          <div id="skeleton" class="hidden mt-4 space-y-2"><div class="scan h-4 rounded"></div><div class="scan h-4 rounded w-4/5"></div><div class="scan h-4 rounded w-2/3"></div></div>
-          <div id="entityCard" class="hidden mt-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4"><div class="flex justify-between"><span class="text-xs font-bold text-emerald-700">STRUCTURED ENTITY</span><span id="sourceBadge" class="text-xs text-slate-500">manual</span></div><pre id="entityJson" class="mt-2 whitespace-pre-wrap text-xs leading-5 text-slate-700"></pre><button id="commitBtn" class="mt-3 w-full rounded-lg bg-mint py-2.5 text-sm font-bold text-white">Confirm & Commit</button></div>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-6 md:p-10">
+
+  <!-- Header -->
+  <header class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between pb-8 gap-4 border-b border-slate-200">
+    <div>
+      <span class="text-xs font-bold tracking-widest text-emerald-600 uppercase">Operations Intelligence</span>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">MSMEFlow <span class="text-slate-400 font-normal">/ Today</span></h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="bridgeStatus" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Supabase Realtime Live
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Grid -->
+  <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+
+    <!-- Column 1: AI Ingest Playground -->
+    <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-lg font-bold text-slate-900">AI Ingest Playground</h2>
+          <span class="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">Ready</span>
         </div>
-        <div class="panel p-5"><h3 class="font-bold">How it flows</h3><p class="mt-2 text-sm leading-6 text-slate-500">Messages are parsed by the bridge, reviewed here, then committed to the live queue and inventory.</p></div>
+        <p class="text-xs text-slate-500 mb-5">Turn messy incoming messages into actions.</p>
+
+        <!-- Mode Toggle -->
+        <div class="grid grid-cols-2 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-semibold text-center">
+          <button class="py-2 rounded-lg bg-white shadow-sm text-slate-800">WhatsApp</button>
+          <button class="py-2 rounded-lg text-slate-500 hover:text-slate-700">Receipt OCR</button>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button onclick="setSample('Hi, Aisha here. I need 12 ayam wraps with cheese, please.')" class="px-2.5 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 font-medium hover:bg-emerald-100 transition">Lunch order</button>
+          <button onclick="setSample('Order 5 box brownies extra cheese pickup esok petang.')" class="px-2.5 py-1 text-xs rounded-full bg-amber-50 text-amber-700 font-medium hover:bg-amber-100 transition">Quick reorder</button>
+          <button onclick="setSample('Hi boss nak order 30 packs chicken wrap delivery office pukul 12.')" class="px-2.5 py-1 text-xs rounded-full bg-purple-50 text-purple-700 font-medium hover:bg-purple-100 transition">Bulk order</button>
+        </div>
+
+        <!-- Ingest Textarea -->
+        <textarea id="rawMessage" rows="4" class="w-full p-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none" placeholder="Paste incoming WhatsApp message here...">Hi, Aisha here. I need 12 ayam wraps with cheese, please.</textarea>
+
+        <button onclick="simulateManualExtract()" class="mt-4 w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+          Extract order entities
+        </button>
       </div>
-      <div class="space-y-5"><div class="panel overflow-hidden"><div class="p-5 flex justify-between items-center"><div><h2 class="font-bold text-lg">Live Order Queue</h2><p id="orderCount" class="text-sm text-slate-500">0 orders today</p></div><button id="demoBtn" class="text-sm font-bold text-mint">+ Demo order</button></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400"><tr><th class="px-5 py-3">Customer</th><th class="px-3 py-3">Items</th><th class="px-3 py-3">Total</th><th class="px-5 py-3">Status</th></tr></thead><tbody id="ordersBody"></tbody></table></div></div>
-        <div class="panel p-5"><div class="flex justify-between"><div><h2 class="font-bold text-lg">Predictive Stock Monitor</h2><p class="text-sm text-slate-500">Projected against today’s demand.</p></div><span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 h-fit rounded-full">2 alerts</span></div><div id="stockList" class="mt-5 space-y-4"></div></div>
+
+      <!-- Structured JSON Preview -->
+      <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs text-slate-700">
+        <div class="flex justify-between items-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <span class="text-emerald-600 font-bold">Structured Entity</span>
+          <span id="extractionMode">manual</span>
+        </div>
+        <pre id="jsonPreview" class="overflow-x-auto whitespace-pre-wrap">{
+  "customer": "Aisha",
+  "product": "ayam wraps",
+  "quantity": 12,
+  "addon": "cheese"
+}</pre>
       </div>
-      <div class="space-y-5"><div class="panel p-5"><h2 class="font-bold text-lg">Today’s Financial Snapshot</h2><p class="text-sm text-slate-500">Live ledger position</p><div id="metrics" class="grid grid-cols-2 gap-3 mt-5"></div></div><div class="panel p-5 border-violet-200 bg-gradient-to-br from-white to-violet-50"><span class="text-xs font-bold tracking-widest text-violet-600">PHASE 2 PREVIEW</span><h2 class="font-bold text-lg mt-2">MSMEFlow Partner Network</h2><p class="text-sm leading-6 text-slate-600 mt-2">Give your freelance bookkeeper a clean, reconciled handoff — no spreadsheet chasing.</p><div class="mt-4 rounded-xl border border-violet-100 bg-white p-3 flex gap-3"><div class="w-9 h-9 rounded-lg bg-violet-100 grid place-items-center">↗</div><div><p class="font-semibold text-sm">1-click ledger export</p><p class="text-xs text-slate-500">CSV + source message links</p></div></div><button class="mt-4 w-full py-2.5 rounded-xl border border-violet-200 text-violet-700 text-sm font-bold">Join partner waitlist</button></div></div>
     </section>
+
+    <!-- Column 2: Live Order Queue & Stock Monitor -->
+    <div class="space-y-6">
+      
+      <!-- Live Order Queue -->
+      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Live Order Queue</h2>
+            <p id="orderCount" class="text-xs text-slate-500">0 orders loaded</p>
+          </div>
+          <button onclick="insertTestOrder()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition">+ Demo order</button>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                <th class="pb-3">Customer</th>
+                <th class="pb-3">Items</th>
+                <th class="pb-3">Total</th>
+                <th class="pb-3 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+              <!-- Dynamically populated from Supabase -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Predictive Stock Monitor -->
+      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-base font-bold text-slate-900">Predictive Stock Monitor</h2>
+          <span class="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-600 rounded-md">2 alerts</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-4">Projected against today's demand.</p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span>Chicken wraps</span>
+              <span class="text-slate-900">76 pcs</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div class="bg-emerald-500 h-2 rounded-full" style="width: 65%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span>Cheese portions</span>
+              <span class="text-amber-600">19 pcs</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div class="bg-amber-500 h-2 rounded-full" style="width: 25%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Column 3: Financial Snapshot & Phase 2 Preview -->
+    <div class="space-y-6">
+
+      <!-- Today's Financial Snapshot -->
+      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-900">Today's Financial Snapshot</h2>
+        <p class="text-xs text-slate-500 mb-5">Live ledger position</p>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Inflow</span>
+            <div id="inflowTotal" class="text-xl font-bold text-emerald-600 mt-1">RM 0.00</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Pending Receivables</span>
+            <div id="pendingTotal" class="text-xl font-bold text-amber-600 mt-1">RM 0.00</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Outflow</span>
+            <div class="text-xl font-bold text-rose-600 mt-1">RM 83.00</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Margin %</span>
+            <div class="text-xl font-bold text-indigo-600 mt-1">68.7%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 2 Preview -->
+      <section class="p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
+        <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">Phase 2 Preview</span>
+        <h3 class="text-base font-bold text-slate-900 mt-1">MSMEFlow Partner Network</h3>
+        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+          Give your freelance bookkeeper a clean, reconciled handoff — no spreadsheet chasing.
+        </p>
+      </section>
+    </div>
+
   </main>
+
+  <!-- Supabase Realtime Integration Script -->
   <script>
-    const state={orders:[{customer:'Nadia',quantity:8,addons:['cheese'],total:100,status:'Confirmed'},{customer:'Lim & Co.',quantity:15,addons:[],total:165,status:'Fulfilled'}],stock:[{name:'Chicken wraps',current:76,max:120,unit:'pcs',warning:35},{name:'Cheese portions',current:19,max:80,unit:'pcs',warning:30},{name:'Packaging',current:42,max:100,unit:'sets',warning:25}],metrics:{inflow:265,pending:0,outflow:83},staged:null};
-    const RM=n=>`RM ${n.toFixed(2)}`; const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    function render(){document.querySelector('#ordersBody').innerHTML=state.orders.map(o=>`<tr class="border-t border-slate-100"><td class="px-5 py-4 font-semibold">${esc(o.customer)}</td><td class="px-3 py-4 text-slate-500">${o.quantity} wraps${o.addons.length?' + '+o.addons.join(', '):''}</td><td class="px-3 py-4 font-semibold">${RM(o.total)}</td><td class="px-5 py-4"><span class="status text-xs font-bold px-2 py-1 rounded-full ${o.status==='Fulfilled'?'bg-slate-100 text-slate-600':o.status==='Confirmed'?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">${o.status}</span></td></tr>`).join('');document.querySelector('#orderCount').textContent=`${state.orders.length} orders today`;
-      document.querySelector('#stockList').innerHTML=state.stock.map(s=>{let p=s.current/s.max*100,low=s.current<=s.warning;return `<div><div class="flex justify-between text-sm"><span class="font-semibold">${s.name}</span><span class="${low?'text-amber-600 font-bold':'text-slate-500'}">${s.current} ${s.unit}</span></div><div class="h-2 rounded-full bg-slate-100 mt-2 overflow-hidden"><div class="h-full rounded-full ${low?'bg-amber-400':'bg-mint'}" style="width:${p}%"></div></div>${low?'<p class="text-xs text-amber-600 mt-1">Depletion warning — replenish soon</p>':''}</div>`}).join('');let margin=state.metrics.inflow?((state.metrics.inflow-state.metrics.outflow)/state.metrics.inflow*100):0;document.querySelector('#metrics').innerHTML=[['Inflow',RM(state.metrics.inflow),'text-emerald-600'],['Pending Receivables',RM(state.metrics.pending),'text-amber-600'],['Outflow',RM(state.metrics.outflow),'text-rose-600'],['Margin %',margin.toFixed(1)+'%','text-violet-600']].map(m=>`<div class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">${m[0]}</p><p class="mt-1 font-extrabold ${m[2]}">${m[1]}</p></div>`).join('')}
-    function parseOrder(raw,sender='Manual entry'){let q=+(raw.match(/\b(\d+)\s*(?:x|wrap|ayam|chicken)/i)||[,1])[1],cheese=/cheese/i.test(raw),name=(raw.match(/(?:for|i['’]?m|i am)\s+([A-Za-z][A-Za-z .&'-]{1,30})/i)||[])[1]||sender.split('@')[0].replace(/\D/g,'')||'Walk-in customer';return {customer:name.trim(),quantity:q,addons:cheese?['cheese']:[],total:q*(11+(cheese?1.5:0)),status:'Draft',raw_text:raw}}
-    function stage(order,source='manual'){state.staged=order;document.querySelector('#entityCard').classList.remove('hidden');document.querySelector('#sourceBadge').textContent=source;document.querySelector('#entityJson').textContent=JSON.stringify({customer:order.customer,items:[`${order.quantity} chicken wraps`,...order.addons],calculated_total_rm:order.total,status:'Draft'},null,2)}
-    document.querySelectorAll('.prompt').forEach(b=>b.onclick=()=>document.querySelector('#rawText').value=b.dataset.text);document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.className='mode rounded-lg py-2 text-sm font-semibold text-slate-500');b.className='mode active rounded-lg py-2 text-sm font-semibold bg-white shadow-sm'});
-    document.querySelector('#parseBtn').onclick=()=>{let r=document.querySelector('#rawText').value.trim();if(!r)return;document.querySelector('#ingestState').textContent='SCANNING';document.querySelector('#skeleton').classList.remove('hidden');setTimeout(()=>{document.querySelector('#skeleton').classList.add('hidden');document.querySelector('#ingestState').textContent='READY';stage(parseOrder(r))},650)};
-    document.querySelector('#commitBtn').onclick=()=>{let o=state.staged;if(!o)return;state.orders.unshift({...o,status:'Confirmed'});state.stock[0].current=Math.max(0,state.stock[0].current-o.quantity);if(o.addons.includes('cheese'))state.stock[1].current=Math.max(0,state.stock[1].current-o.quantity);state.metrics.inflow+=o.total;state.staged=null;document.querySelector('#entityCard').classList.add('hidden');document.querySelector('#rawText').value='';render()};document.querySelector('#demoBtn').onclick=()=>stage(parseOrder('Hi, I am Mei. Need 4 chicken wraps with cheese'));
-    async function poll(){try{let r=await fetch('http://127.0.0.1:8000/api/poll/latest');if(r.ok){let o=await r.json();if(o&&o.raw_text){document.querySelector('#rawText').value=o.raw_text;stage({...o,status:'Draft'},'WhatsApp bridge')}}}catch(e){}finally{setTimeout(poll,1500)}}render();poll();
+    // Supabase Project Credentials
+    const SUPABASE_URL = "https://exsnyagejvcpjbbliodw.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_nOz5KwPKdPvomY5qY96L1g_0ewx1pb0";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let allOrders = [];
+
+    // Helper to format currency
+    function formatCurrency(num) {
+      return `RM ${parseFloat(num || 0).toFixed(2)}`;
+    }
+
+    // Render a single order row inside the table
+    function prependOrderRow(order) {
+      const tbody = document.getElementById("ordersTableBody");
+
+      // Check if already in DOM to prevent duplicates
+      if (document.getElementById(`order-${order.id}`)) return;
+
+      const tr = document.createElement("tr");
+      tr.id = `order-${order.id}`;
+      tr.className = "hover:bg-slate-50/80 transition-colors";
+
+      const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
+      const statusClass = order.status_tag === 'Confirmed' 
+        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+        : 'bg-amber-50 text-amber-700 border-amber-200';
+
+      tr.innerHTML = `
+        <td class="py-3 font-semibold text-slate-900">${order.customer || 'Guest Customer'}</td>
+        <td class="py-3 text-slate-600">${itemsDesc}</td>
+        <td class="py-3 font-bold text-slate-800">${formatCurrency(order.total)}</td>
+        <td class="py-3 text-right">
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${statusClass}">
+            ${order.status_tag || 'Pending'}
+          </span>
+        </td>
+      `;
+
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    // Recalculate totals
+    function updateMetrics() {
+      document.getElementById("orderCount").innerText = `${allOrders.length} orders today`;
+
+      let totalInflow = 0;
+      let totalPending = 0;
+
+      allOrders.forEach(o => {
+        const val = parseFloat(o.total || 0);
+        if (o.status_tag === 'Confirmed' || o.status_tag === 'Fulfilled') {
+          totalInflow += val;
+        } else {
+          totalPending += val;
+        }
+      });
+
+      document.getElementById("inflowTotal").innerText = formatCurrency(totalInflow);
+      document.getElementById("pendingTotal").innerText = formatCurrency(totalPending);
+    }
+
+    // 1. Initial Load: Fetch existing orders from Supabase
+    async function loadInitialOrders() {
+      const { data, error } = await supabaseClient
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Failed to load initial orders:", error);
+        return;
+      }
+
+      allOrders = data || [];
+      const tbody = document.getElementById("ordersTableBody");
+      tbody.innerHTML = "";
+      allOrders.forEach(order => prependOrderRow(order));
+      updateMetrics();
+    }
+
+    // 2. Realtime Listener: Listen for newly inserted orders
+    function initRealtimeSubscription() {
+      supabaseClient
+        .channel("msmeflow-orders-channel")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "orders" },
+          (payload) => {
+            console.log("Realtime order received:", payload.new);
+            allOrders.unshift(payload.new);
+            prependOrderRow(payload.new);
+            updateMetrics();
+
+            // Update structured entity preview on screen
+            document.getElementById("extractionMode").innerText = "realtime whatsapp";
+            document.getElementById("jsonPreview").innerText = JSON.stringify(payload.new, null, 2);
+          }
+        )
+        .subscribe((status) => {
+          console.log("Supabase subscription status:", status);
+          const badge = document.getElementById("bridgeStatus");
+          if (status === "SUBSCRIBED") {
+            badge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200";
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Supabase Realtime Live`;
+          } else if (status === "CHANNEL_ERROR") {
+            badge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200";
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Realtime Disconnected`;
+          }
+        });
+    }
+
+    // Helper for quick sample buttons
+    function setSample(text) {
+      document.getElementById("rawMessage").value = text;
+    }
+
+    // Manual playground simulation
+    function simulateManualExtract() {
+      const text = document.getElementById("rawMessage").value;
+      const parsedMock = {
+        customer: "Aisha",
+        product: "ayam wraps",
+        quantity: 12,
+        addon: "cheese",
+        total: 150.00,
+        raw: text
+      };
+      document.getElementById("extractionMode").innerText = "manual extract";
+      document.getElementById("jsonPreview").innerText = JSON.stringify(parsedMock, null, 2);
+    }
+
+    // Insert a demo order directly into Supabase for instant testing
+    async function insertTestOrder() {
+      const demoId = "demo-" + Math.floor(Math.random() * 10000);
+      const { error } = await supabaseClient.from("orders").insert({
+        id: demoId,
+        sender: "60129998888@c.us",
+        customer: "Farah Lee",
+        product: "ayam wraps",
+        quantity: 4,
+        addon: "extra cheese",
+        total: 50.00,
+        delivery: "Pickup 5PM",
+        status_tag: "Pending Payment",
+        raw_text: "Demo order from dashboard button"
+      });
+
+      if (error) console.error("Error inserting demo order:", error);
+    }
+
+    // Startup
+    loadInitialOrders();
+    initRealtimeSubscription();
   </script>
-</body></html>
+</body>
+</html>
