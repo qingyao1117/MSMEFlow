@@ -11,6 +11,10 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
+    .mode-button[aria-selected="true"] { background: white; box-shadow: 0 1px 3px rgb(15 23 42 / 0.12); color: rgb(15 23 42); }
+    .mode-button[aria-selected="false"] { color: rgb(100 116 139); }
+    .order-row { animation: slide-in 280ms ease-out; }
+    @keyframes slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-6 md:p-10">
@@ -21,7 +25,9 @@
       <span class="text-xs font-bold tracking-widest text-emerald-600 uppercase">Operations Intelligence</span>
       <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">MSMEFlow <span class="text-slate-400 font-normal">/ Today</span></h1>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 flex-wrap">
+      <span id="todayLabel" class="text-xs font-medium text-slate-500"></span>
+      <button onclick="refreshDashboard()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition">↻ Refresh</button>
       <span id="bridgeStatus" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         Supabase Realtime Live
@@ -43,8 +49,8 @@
 
         <!-- Mode Toggle -->
         <div class="grid grid-cols-2 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-semibold text-center">
-          <button class="py-2 rounded-lg bg-white shadow-sm text-slate-800">WhatsApp</button>
-          <button class="py-2 rounded-lg text-slate-500 hover:text-slate-700">Receipt OCR</button>
+          <button type="button" data-mode="whatsapp" onclick="setMode('whatsapp')" aria-selected="true" class="mode-button py-2 rounded-lg transition">WhatsApp</button>
+          <button type="button" data-mode="receipt" onclick="setMode('receipt')" aria-selected="false" class="mode-button py-2 rounded-lg transition">Receipt OCR</button>
         </div>
 
         <!-- Quick Presets -->
@@ -55,18 +61,27 @@
         </div>
 
         <!-- Ingest Textarea -->
-        <textarea id="rawMessage" rows="4" class="w-full p-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none" placeholder="Paste incoming WhatsApp message here...">Hi, Aisha here. I need 12 ayam wraps with cheese, please.</textarea>
+        <div id="whatsappInput">
+          <textarea id="rawMessage" rows="4" class="w-full p-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none" placeholder="Paste incoming WhatsApp message here...">Hi, Aisha here. I need 12 ayam wraps with cheese, please.</textarea>
+        </div>
+        <label id="receiptInput" class="hidden cursor-pointer rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center transition hover:border-emerald-400 hover:bg-emerald-50/50">
+          <input id="receiptFile" type="file" accept="image/*,.pdf" class="hidden" onchange="handleReceipt(event)" />
+          <span class="block text-2xl mb-2">⌁</span>
+          <span id="receiptLabel" class="block text-sm font-semibold text-slate-700">Upload a receipt</span>
+          <span class="block text-xs text-slate-500 mt-1">PNG, JPG, or PDF · demo extraction</span>
+        </label>
 
-        <button onclick="simulateManualExtract()" class="mt-4 w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+        <button id="extractButton" onclick="simulateManualExtract()" class="mt-4 w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
           Extract order entities
         </button>
+        <button id="addOrderButton" onclick="addExtractedOrder()" disabled class="mt-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-500 text-white rounded-xl text-sm font-semibold transition">Add extracted order to queue</button>
       </div>
 
       <!-- Structured JSON Preview -->
       <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs text-slate-700">
         <div class="flex justify-between items-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
           <span class="text-emerald-600 font-bold">Structured Entity</span>
-          <span id="extractionMode">manual</span>
+          <span id="extractionMode">waiting for input</span>
         </div>
         <pre id="jsonPreview" class="overflow-x-auto whitespace-pre-wrap">{
   "customer": "Aisha",
@@ -87,7 +102,10 @@
             <h2 class="text-lg font-bold text-slate-900">Live Order Queue</h2>
             <p id="orderCount" class="text-xs text-slate-500">0 orders loaded</p>
           </div>
-          <button onclick="insertTestOrder()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition">+ Demo order</button>
+          <div class="flex items-center gap-3">
+            <button id="orderFilter" onclick="toggleOrderFilter()" class="text-xs font-semibold text-slate-500 hover:text-slate-900 transition">All orders</button>
+            <button onclick="insertTestOrder()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition">+ Demo order</button>
+          </div>
         </div>
 
         <!-- Orders Table -->
@@ -112,7 +130,7 @@
       <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-base font-bold text-slate-900">Predictive Stock Monitor</h2>
-          <span class="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-600 rounded-md">2 alerts</span>
+          <span id="stockAlertCount" class="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-600 rounded-md">2 alerts</span>
         </div>
         <p class="text-xs text-slate-500 mb-4">Projected against today's demand.</p>
 
@@ -120,19 +138,19 @@
           <div>
             <div class="flex justify-between text-xs font-semibold mb-1">
               <span>Chicken wraps</span>
-              <span class="text-slate-900">76 pcs</span>
+              <span id="wrapStockLabel" class="text-slate-900">76 pcs</span>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-2">
-              <div class="bg-emerald-500 h-2 rounded-full" style="width: 65%"></div>
+              <div id="wrapStockBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 65%"></div>
             </div>
           </div>
           <div>
             <div class="flex justify-between text-xs font-semibold mb-1">
               <span>Cheese portions</span>
-              <span class="text-amber-600">19 pcs</span>
+              <span id="cheeseStockLabel" class="text-amber-600">19 pcs</span>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-2">
-              <div class="bg-amber-500 h-2 rounded-full" style="width: 25%"></div>
+              <div id="cheeseStockBar" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 25%"></div>
             </div>
           </div>
         </div>
@@ -179,6 +197,8 @@
 
   </main>
 
+  <div id="toast" role="status" class="pointer-events-none fixed bottom-6 right-6 translate-y-4 opacity-0 transition-all duration-300 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-xl"></div>
+
   <!-- Supabase Realtime Integration Script -->
   <script>
     // Supabase Project Credentials
@@ -188,6 +208,10 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allOrders = [];
+    let extractedOrder = null;
+    let activeMode = "whatsapp";
+    let pendingOnly = false;
+    let receiptName = "";
 
     // Helper to format currency
     function formatCurrency(num) {
@@ -203,7 +227,7 @@
 
       const tr = document.createElement("tr");
       tr.id = `order-${order.id}`;
-      tr.className = "hover:bg-slate-50/80 transition-colors";
+      tr.className = "order-row hover:bg-slate-50/80 transition-colors";
 
       const itemsDesc = `${order.quantity || 1} ${order.product || 'item'}${order.addon ? ' + ' + order.addon : ''}`;
       const statusClass = order.status_tag === 'Confirmed' 
@@ -224,9 +248,19 @@
       tbody.insertBefore(tr, tbody.firstChild);
     }
 
+    function renderOrders() {
+      const tbody = document.getElementById("ordersTableBody");
+      tbody.innerHTML = "";
+      const visibleOrders = pendingOnly
+        ? allOrders.filter(order => !["Confirmed", "Fulfilled"].includes(order.status_tag))
+        : allOrders;
+      visibleOrders.forEach(prependOrderRow);
+    }
+
     // Recalculate totals
     function updateMetrics() {
-      document.getElementById("orderCount").innerText = `${allOrders.length} orders today`;
+      const pendingCount = allOrders.filter(order => !["Confirmed", "Fulfilled"].includes(order.status_tag)).length;
+      document.getElementById("orderCount").innerText = `${allOrders.length} orders today · ${pendingCount} awaiting action`;
 
       let totalInflow = 0;
       let totalPending = 0;
@@ -242,6 +276,7 @@
 
       document.getElementById("inflowTotal").innerText = formatCurrency(totalInflow);
       document.getElementById("pendingTotal").innerText = formatCurrency(totalPending);
+      updateStockProjection();
     }
 
     // 1. Initial Load: Fetch existing orders from Supabase
@@ -257,9 +292,7 @@
       }
 
       allOrders = data || [];
-      const tbody = document.getElementById("ordersTableBody");
-      tbody.innerHTML = "";
-      allOrders.forEach(order => prependOrderRow(order));
+      renderOrders();
       updateMetrics();
     }
 
@@ -273,7 +306,7 @@
           (payload) => {
             console.log("Realtime order received:", payload.new);
             allOrders.unshift(payload.new);
-            prependOrderRow(payload.new);
+            renderOrders();
             updateMetrics();
 
             // Update structured entity preview on screen
@@ -294,24 +327,116 @@
         });
     }
 
+    function setMode(mode) {
+      activeMode = mode;
+      document.querySelectorAll(".mode-button").forEach(button => {
+        button.setAttribute("aria-selected", button.dataset.mode === mode ? "true" : "false");
+      });
+      document.getElementById("whatsappInput").classList.toggle("hidden", mode !== "whatsapp");
+      document.getElementById("receiptInput").classList.toggle("hidden", mode !== "receipt");
+      document.getElementById("extractButton").innerText = mode === "receipt" ? "Extract receipt details" : "Extract order entities";
+      extractedOrder = null;
+      document.getElementById("addOrderButton").disabled = true;
+      document.getElementById("extractionMode").innerText = mode === "receipt" ? "receipt ready" : "waiting for input";
+    }
+
+    function handleReceipt(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      receiptName = file.name;
+      document.getElementById("receiptLabel").innerText = receiptName;
+      document.getElementById("extractionMode").innerText = "receipt selected";
+      showToast("Receipt ready to extract");
+    }
+
     // Helper for quick sample buttons
     function setSample(text) {
       document.getElementById("rawMessage").value = text;
+      if (activeMode !== "whatsapp") setMode("whatsapp");
     }
 
-    // Manual playground simulation
     function simulateManualExtract() {
-      const text = document.getElementById("rawMessage").value;
-      const parsedMock = {
-        customer: "Aisha",
-        product: "ayam wraps",
-        quantity: 12,
-        addon: "cheese",
-        total: 150.00,
-        raw: text
-      };
-      document.getElementById("extractionMode").innerText = "manual extract";
-      document.getElementById("jsonPreview").innerText = JSON.stringify(parsedMock, null, 2);
+      const button = document.getElementById("extractButton");
+      const text = document.getElementById("rawMessage").value.trim();
+      if (activeMode === "whatsapp" && !text) {
+        showToast("Paste a customer message first");
+        return;
+      }
+      if (activeMode === "receipt" && !receiptName) {
+        showToast("Choose a receipt to extract");
+        return;
+      }
+      button.disabled = true;
+      button.innerText = "Extracting…";
+      setTimeout(() => {
+        const quantityMatch = text.match(/\b(\d+)\b/);
+        const quantity = activeMode === "receipt" ? 1 : Number(quantityMatch?.[1] || 1);
+        const isBrownie = /brownie/i.test(text) || activeMode === "receipt";
+        const product = isBrownie ? "Brownie Box" : "Ayam Wrap";
+        const hasCheese = /cheese/i.test(text);
+        const customerMatch = text.match(/(?:hi[, ]+|i'?m |saya |here\. i need )([A-Za-z]+)/i);
+        const price = isBrownie ? 15 : 11;
+        extractedOrder = {
+          id: `MAN-${Date.now().toString().slice(-5)}`,
+          customer: activeMode === "receipt" ? "Receipt customer" : (customerMatch?.[1] || "Walk-in customer"),
+          product,
+          quantity,
+          addon: hasCheese ? "Extra cheese" : "None",
+          total: quantity * price + (hasCheese ? quantity * 5 : 0),
+          delivery: /pickup|ambil/i.test(text) ? "Self-pickup" : "Unspecified",
+          status_tag: "Pending Payment",
+          raw_text: activeMode === "receipt" ? `Receipt: ${receiptName}` : text
+        };
+        document.getElementById("extractionMode").innerText = activeMode === "receipt" ? "receipt extract" : "message extract";
+        document.getElementById("jsonPreview").innerText = JSON.stringify(extractedOrder, null, 2);
+        document.getElementById("addOrderButton").disabled = false;
+        button.disabled = false;
+        button.innerText = activeMode === "receipt" ? "Extract receipt details" : "Extract order entities";
+        showToast("Order details extracted");
+      }, 500);
+    }
+
+    function addExtractedOrder() {
+      if (!extractedOrder) return;
+      allOrders.unshift(extractedOrder);
+      renderOrders();
+      updateMetrics();
+      document.getElementById("addOrderButton").disabled = true;
+      showToast(`${extractedOrder.customer}'s order added to the queue`);
+      extractedOrder = null;
+    }
+
+    function toggleOrderFilter() {
+      pendingOnly = !pendingOnly;
+      document.getElementById("orderFilter").innerText = pendingOnly ? "Pending only" : "All orders";
+      renderOrders();
+    }
+
+    function updateStockProjection() {
+      const wrapDemand = allOrders.filter(order => /wrap/i.test(order.product || "")).reduce((sum, order) => sum + Number(order.quantity || 0), 0);
+      const cheeseDemand = allOrders.filter(order => /cheese/i.test(order.addon || "")).reduce((sum, order) => sum + Number(order.quantity || 0), 0);
+      const wrapsRemaining = Math.max(0, 76 - wrapDemand);
+      const cheeseRemaining = Math.max(0, 19 - cheeseDemand);
+      document.getElementById("wrapStockLabel").innerText = `${wrapsRemaining} pcs`;
+      document.getElementById("cheeseStockLabel").innerText = `${cheeseRemaining} pcs`;
+      document.getElementById("wrapStockBar").style.width = `${Math.max(4, wrapsRemaining / 76 * 100)}%`;
+      document.getElementById("cheeseStockBar").style.width = `${Math.max(4, cheeseRemaining / 19 * 100)}%`;
+      const alerts = Number(wrapsRemaining < 25) + Number(cheeseRemaining < 8);
+      document.getElementById("stockAlertCount").innerText = alerts ? `${alerts} alert${alerts > 1 ? "s" : ""}` : "Stock healthy";
+    }
+
+    let toastTimer;
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.classList.remove("translate-y-4", "opacity-0");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add("translate-y-4", "opacity-0"), 2600);
+    }
+
+    function refreshDashboard() {
+      loadInitialOrders();
+      showToast("Dashboard refreshed");
     }
 
     // Insert a demo order directly into Supabase for instant testing
@@ -330,12 +455,28 @@
         raw_text: "Demo order from dashboard button"
       });
 
-      if (error) console.error("Error inserting demo order:", error);
+      if (error) {
+        console.warn("Supabase insert unavailable; adding a local demo order.", error);
+        allOrders.unshift({
+          id: demoId,
+          customer: "Farah Lee",
+          product: "Ayam Wrap",
+          quantity: 4,
+          addon: "Extra cheese",
+          total: 64,
+          status_tag: "Pending Payment"
+        });
+        renderOrders();
+        updateMetrics();
+        showToast("Demo order added locally");
+      }
     }
 
     // Startup
+    document.getElementById("todayLabel").innerText = new Intl.DateTimeFormat("en-MY", { weekday: "short", day: "numeric", month: "short" }).format(new Date());
     loadInitialOrders();
     initRealtimeSubscription();
   </script>
 </body>
 </html>
+
