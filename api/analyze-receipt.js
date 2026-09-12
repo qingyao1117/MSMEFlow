@@ -32,8 +32,8 @@ export default async function handler(req, res) {
   }
 
   const instruction = `Read this Malaysian business receipt. Return JSON only, no markdown, using this exact shape:
-{"merchant":"string or Unknown","receipt_date":"YYYY-MM-DD or Unknown","category":"supplies|inventory|utilities|transport|other","total":number,"currency":"MYR","summary":"short description","confidence":"high|medium|low"}.
-Use 0 for an unreadable total. File name: ${fileName}`;
+{"merchant":"string or Unknown","receipt_date":"YYYY-MM-DD or Unknown","category":"supplies|inventory|utilities|transport|other","total":number or null,"currency":"MYR","summary":"short description","confidence":"high|medium|low"}.
+total must be the final amount payable including tax, as a plain number (for example 78.23), never a subtotal. Use null when no final total is readable; do not invent it. File name: ${fileName}`;
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
