@@ -17,10 +17,19 @@
     @keyframes slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-6 md:p-10">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+  <section id="authScreen" class="min-h-screen bg-slate-950 px-5 py-10 flex items-center justify-center">
+    <div class="grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl md:grid-cols-2">
+      <div class="hidden bg-gradient-to-br from-indigo-600 via-sky-600 to-emerald-500 p-10 text-white md:block"><span class="text-xs font-bold tracking-[.22em]">MSMEFLOW</span><h1 class="mt-12 text-4xl font-extrabold leading-tight">Run every order.<br/>Understand every ringgit.</h1><p class="mt-5 max-w-sm text-sm text-white/80">A secure operating desk for Malaysian small businesses: orders, receipts, cash flow and AI insights in one place.</p><div class="mt-12 flex gap-2"><span class="h-2 w-12 rounded-full bg-white"></span><span class="h-2 w-4 rounded-full bg-white/40"></span><span class="h-2 w-4 rounded-full bg-white/40"></span></div></div>
+      <div class="p-7 sm:p-10"><span class="text-xs font-bold tracking-[.18em] text-indigo-600">WELCOME TO MSMEFLOW</span><h2 id="authTitle" class="mt-3 text-3xl font-extrabold text-slate-900">Sign in to your workspace</h2><p id="authCopy" class="mt-2 text-sm text-slate-500">Use your business email to access your live dashboard.</p><form id="authForm" class="mt-8 space-y-4" onsubmit="submitAuth(event)"><div id="nameField" class="hidden"><label class="text-xs font-bold text-slate-600">Business name</label><input id="businessName" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" placeholder="Aisha's Kitchen" /></div><div><label class="text-xs font-bold text-slate-600">Email</label><input id="authEmail" type="email" required class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" placeholder="you@example.com" /></div><div><label class="text-xs font-bold text-slate-600">Password</label><input id="authPassword" type="password" required minlength="6" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" placeholder="At least 6 characters" /></div><button id="authSubmit" class="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-indigo-700">Sign in</button></form><p id="authMessage" class="mt-3 text-xs text-slate-500"></p><button id="authToggle" onclick="toggleAuthMode()" class="mt-5 text-sm font-bold text-indigo-600 hover:text-indigo-800">New here? Create an account</button></div>
+    </div>
+  </section>
 
+  <div id="appShell" class="hidden min-h-screen lg:flex">
+    <aside class="w-64 shrink-0 bg-slate-950 px-4 py-6 text-slate-300"><div class="px-3"><span class="text-xs font-bold tracking-[.2em] text-emerald-400">MSMEFLOW</span><h2 class="mt-2 text-lg font-bold text-white">Business Intelligence</h2></div><nav class="mt-10 space-y-1 text-sm"><a href="#overview" class="flex items-center gap-3 rounded-lg bg-indigo-500/20 px-3 py-2.5 font-semibold text-white">▦ Overview</a><a href="#orders" class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-white/5">▤ Orders</a><a href="#insights" class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-white/5">◔ AI insights</a><a href="#resources" class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-white/5">⌘ Resource desk</a></nav><div class="mt-auto pt-16"><p id="userEmail" class="truncate px-3 text-xs text-slate-400"></p><button onclick="signOut()" class="mt-3 w-full rounded-lg border border-slate-700 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-white/5">Sign out</button></div></aside>
+    <div class="min-w-0 flex-1 p-6 md:p-10">
   <!-- Header -->
-  <header class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between pb-8 gap-4 border-b border-slate-200">
+  <header id="overview" class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between pb-8 gap-4 border-b border-slate-200">
     <div>
       <span class="text-xs font-bold tracking-widest text-emerald-600 uppercase">Operations Intelligence</span>
       <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">MSMEFlow <span class="text-slate-400 font-normal">/ Today</span></h1>
@@ -55,6 +64,7 @@
         <button onclick="sendDemoOrder('lazada')" class="channel-button rounded-xl border border-violet-100 bg-violet-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">◇</span><span class="mt-1 block text-xs font-bold text-violet-900">Lazada</span><span class="mt-0.5 block text-[10px] text-violet-700">Demo order</span></button>
         <button onclick="sendDemoOrder('website')" class="channel-button rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"><span class="block text-base">⌘</span><span class="mt-1 block text-xs font-bold text-slate-900">Website</span><span class="mt-0.5 block text-[10px] text-slate-600">Demo order</span></button>
       </div>
+      <button onclick="syncTelegramInbox()" class="mt-4 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-100">↻ Sync new Telegram messages into my workspace</button>
     </section>
 
     <!-- Column 1: Receipt intake -->
@@ -97,7 +107,7 @@
     <div class="space-y-6">
       
       <!-- Live Order Queue -->
-      <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <section id="orders" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h2 class="text-lg font-bold text-slate-900">Live Order Queue</h2>
@@ -178,7 +188,7 @@
         </div>
       </section>
 
-      <section class="p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
+      <section id="insights" class="p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100">
         <span class="text-[10px] font-bold tracking-widest text-indigo-600 uppercase">AI analysis trend</span>
         <h3 id="trendTitle" class="text-base font-bold text-slate-900 mt-1">Waiting for transaction activity</h3>
         <svg id="trendChart" viewBox="0 0 320 116" class="mt-3 h-28 w-full" role="img" aria-label="Demand trend chart"></svg>
@@ -189,7 +199,7 @@
         <h3 id="cashflowTitle" class="text-base font-bold text-slate-900 mt-1">No recommendations yet</h3>
         <div id="cashflowSuggestions" class="mt-3 space-y-2 text-xs text-slate-700"></div>
       </section>
-      <section class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+      <section id="resources" class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
         <span class="text-[10px] font-bold tracking-widest text-sky-700 uppercase">MSME resource desk</span>
         <h3 class="text-base font-bold text-slate-900 mt-1">Support matched to your next step</h3>
         <div class="mt-3 grid gap-2 text-xs">
@@ -201,6 +211,8 @@
     </div>
 
   </main>
+    </div>
+  </div>
 
   <div id="toast" role="status" class="pointer-events-none fixed bottom-6 right-6 translate-y-4 opacity-0 transition-all duration-300 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-xl"></div>
 
@@ -218,6 +230,60 @@
     let activeMode = "whatsapp";
     let pendingOnly = false;
     let receiptName = "";
+    let currentUser = null;
+    let signUpMode = false;
+
+    function toggleAuthMode() {
+      signUpMode = !signUpMode;
+      document.getElementById("authTitle").innerText = signUpMode ? "Create your workspace" : "Sign in to your workspace";
+      document.getElementById("authCopy").innerText = signUpMode ? "Start with a secure account for your business." : "Use your business email to access your live dashboard.";
+      document.getElementById("nameField").classList.toggle("hidden", !signUpMode);
+      document.getElementById("authSubmit").innerText = signUpMode ? "Create account" : "Sign in";
+      document.getElementById("authToggle").innerText = signUpMode ? "Already have an account? Sign in" : "New here? Create an account";
+      document.getElementById("authMessage").innerText = "";
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value;
+      const message = document.getElementById("authMessage");
+      const button = document.getElementById("authSubmit");
+      button.disabled = true;
+      button.innerText = "Please wait…";
+      const result = signUpMode
+        ? await supabaseClient.auth.signUp({ email, password, options: { data: { business_name: document.getElementById("businessName").value.trim() } } })
+        : await supabaseClient.auth.signInWithPassword({ email, password });
+      button.disabled = false;
+      button.innerText = signUpMode ? "Create account" : "Sign in";
+      if (result.error) { message.innerText = result.error.message; message.className = "mt-3 text-xs text-rose-600"; return; }
+      if (signUpMode && !result.data.session) { message.innerText = "Account created. Check your email to confirm it, then sign in."; message.className = "mt-3 text-xs text-emerald-600"; return; }
+      await openWorkspace(result.data.user || result.data.session?.user);
+    }
+
+    async function openWorkspace(user) {
+      currentUser = user;
+      document.getElementById("authScreen").classList.add("hidden");
+      document.getElementById("appShell").classList.remove("hidden");
+      document.getElementById("userEmail").innerText = user.email || "Signed-in business";
+      await loadInitialOrders();
+      initRealtimeSubscription();
+    }
+
+    async function signOut() {
+      await supabaseClient.auth.signOut();
+      currentUser = null; allOrders = [];
+      document.getElementById("appShell").classList.add("hidden");
+      document.getElementById("authScreen").classList.remove("hidden");
+    }
+
+    async function saveOrder(order) {
+      if (!currentUser) throw new Error("Sign in before saving an order");
+      const record = { ...order, owner_id: currentUser.id, total: Number(order.total || 0) };
+      const { data, error } = await supabaseClient.from("orders").upsert(record).select().single();
+      if (error) throw error;
+      return data;
+    }
 
     function setApiStatus(online) {
       const badge = document.getElementById("apiStatus");
@@ -283,13 +349,13 @@
       updateAnalysisTrend(refunds, totalPending);
     }
 
-    // 1. Initial Load: Fetch existing orders from Supabase
+    // Load only the signed-in business's orders; RLS enforces the same boundary server-side.
     async function loadInitialOrders() {
       try {
-        const response = await fetch(`${API_BASE}/orders`);
-        if (!response.ok) throw new Error("Connector API unavailable");
-        const payload = await response.json();
-        allOrders = payload.orders || [];
+        if (!currentUser) return;
+        const { data, error } = await supabaseClient.from("orders").select("*").eq("owner_id", currentUser.id).order("created_at", { ascending: false });
+        if (error) throw error;
+        allOrders = data || [];
         renderOrders();
         updateMetrics();
         setApiStatus(true);
@@ -306,7 +372,8 @@
         if (!response.ok) throw new Error("Could not create demo order");
         const payload = await response.json();
         const order = payload.order;
-        if (!allOrders.some(existing => existing.id === order.id)) allOrders.unshift(order);
+        const saved = await saveOrder(order);
+        if (!allOrders.some(existing => existing.id === saved.id)) allOrders.unshift(saved);
         renderOrders();
         updateMetrics();
         setApiStatus(true);
@@ -321,11 +388,26 @@
           website: ["Website guest", "Brownie Box", 1, "None", 15]
         };
         const [customer, product, quantity, addon, total] = samples[channel];
-        allOrders.unshift({ id: `DEMO-${Date.now()}`, customer, product, quantity, addon, total, channel, status_tag: "Pending Payment" });
+        const saved = await saveOrder({ id: `DEMO-${Date.now()}`, customer, product, quantity, addon, total, channel, status_tag: "Pending Payment" });
+        allOrders.unshift(saved);
         renderOrders();
         updateMetrics();
         setApiStatus(false);
         showToast(`${channel[0].toUpperCase() + channel.slice(1)} demo added locally`);
+      }
+    }
+
+    async function syncTelegramInbox() {
+      try {
+        const response = await fetch(`${API_BASE}/orders`);
+        if (!response.ok) throw new Error("Telegram connector is not running");
+        const { orders: inbox = [] } = await response.json();
+        const messages = inbox.filter(order => order.channel === "telegram" && !allOrders.some(saved => saved.id === order.id));
+        for (const order of messages) await saveOrder(order);
+        if (messages.length) await loadInitialOrders();
+        showToast(messages.length ? `${messages.length} Telegram order${messages.length > 1 ? "s" : ""} saved to Supabase` : "No new Telegram messages");
+      } catch (error) {
+        showToast(error.message || "Could not sync Telegram");
       }
     }
 
@@ -335,7 +417,7 @@
         .channel("msmeflow-orders-channel")
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "orders" },
+          { event: "INSERT", schema: "public", table: "orders", filter: `owner_id=eq.${currentUser.id}` },
           (payload) => {
             console.log("Realtime order received:", payload.new);
             allOrders.unshift(payload.new);
@@ -450,9 +532,15 @@
       }, 500);
     }
 
-    function addExtractedOrder() {
+    async function addExtractedOrder() {
       if (!extractedOrder) return;
-      allOrders.unshift(extractedOrder);
+      try {
+        const saved = await saveOrder(extractedOrder);
+        allOrders.unshift(saved);
+      } catch (error) {
+        showToast(error.message || "Could not save receipt");
+        return;
+      }
       renderOrders();
       updateMetrics();
       document.getElementById("addOrderButton").disabled = true;
@@ -475,12 +563,12 @@
 
     async function refundOrder(id) {
       try {
-        const response = await fetch(API_BASE + "/orders/" + id + "/refund", { method: "POST" });
-        if (!response.ok) throw new Error("Refund unavailable");
-        const updated = (await response.json()).order;
+        const { data: updated, error } = await supabaseClient.from("orders").update({ status_tag: "Refunded", refunded_at: new Date().toISOString() }).eq("id", id).eq("owner_id", currentUser.id).select().single();
+        if (error) throw error;
         allOrders = allOrders.map(order => order.id === id ? updated : order);
-      } catch {
-        allOrders = allOrders.map(order => order.id === id ? { ...order, status_tag: "Refunded" } : order);
+      } catch (error) {
+        showToast(error.message || "Refund could not be saved");
+        return;
       }
       renderOrders();
       updateMetrics();
@@ -541,11 +629,13 @@
 
     // Startup
     document.getElementById("todayLabel").innerText = new Intl.DateTimeFormat("en-MY", { weekday: "short", day: "numeric", month: "short" }).format(new Date());
-    loadInitialOrders();
-    initRealtimeSubscription();
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) openWorkspace(session.user);
+    });
   </script>
 </body>
 </html>
+
 
 
 
