@@ -79,7 +79,6 @@ function fallbackOrder({ sender, raw_text }, channel) {
     status_tag: "Pending Payment",
     raw_text,
     created_at: new Date().toISOString(),
-    analysis_source: "local fallback",
   };
 }
 
@@ -110,7 +109,7 @@ async function analyseOrder(input, channel) {
     if (!response.ok) throw new Error(`OpenAI returned ${response.status}`);
     const result = await response.json();
     const extracted = JSON.parse(result.choices[0].message.content);
-    return { ...fallback, ...extracted, id: fallback.id, channel, sender: input.sender, raw_text: input.raw_text, analysis_source: "OpenAI" };
+    return { ...fallback, ...extracted, id: fallback.id, channel, sender: input.sender, raw_text: input.raw_text };
   } catch (error) {
     console.warn("AI analysis unavailable; using fallback:", error.message);
     return fallback;
