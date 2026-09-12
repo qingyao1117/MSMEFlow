@@ -1,5 +1,9 @@
 .env
 .venv/
+.venv-imagegen/
+.venv-imagegen2/
+.uv-cache/
+tmp/
 node_modules/
 .wwebjs_auth/
 .wwebjs_cache/
