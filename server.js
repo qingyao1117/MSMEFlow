@@ -2,7 +2,9 @@ const fs = require("fs");
 const http = require("http");
 const path = require("path");
 
-const PORT = 8000;
+// Port 8000 is used by the optional Python demo API. Keep the Telegram bridge
+// separate so both local services can run during a demo.
+const PORT = 8001;
 const CHANNELS = ["whatsapp", "telegram", "tiktok", "shopee", "lazada", "website"];
 const orders = [];
 
@@ -176,6 +178,7 @@ http.createServer(async (request, response) => {
   setInterval(pollTelegram, 12000);
   console.log(`MSMEFlow API is running at http://127.0.0.1:${PORT}`);
 });
+
 
 
 
